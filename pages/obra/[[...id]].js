@@ -279,9 +279,9 @@ export default function Obra() {
                   <InputText
                     widht="100%"
                     placeholder="Url da imagem"
-                    value={obra.uploadimagem}
-                    isError={!!errors.uploadimagem}
-                    errorText={errors.uploadimagem}
+                    value={obra.imagem}
+                    isError={!!errors.imagem}
+                    errorText={errors.imagem}
                     onChange={(e) => handleFormChange({ imagem: e.target.value })}
                     inputRef={refs.imagem}
                   />
