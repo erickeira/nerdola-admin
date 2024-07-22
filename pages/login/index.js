@@ -53,9 +53,7 @@ export default function Login() {
                 <form onSubmit={submitHandler}>
                     <>
                         <Center>
-                            <Text>
-                                Nerdola
-                            </Text>
+                            <Image src="/logo.png" w="200px"/>
                         </Center>
                         <Divider my="30px"/>
                         <InputText 
