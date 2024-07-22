@@ -7,7 +7,17 @@ import { useGlobal } from "@/context/GlobalContext";
 
 const layouts = [
   { routes: ['/login'], comp: AuthLayout },
-  { routes: ['/obras','/obra'], comp: DashboardLayout },
+  { routes: [
+    '/obras','/obra',
+    '/obras-status','/obra-status',
+    '/tags','/tag',
+    '/usuarios','/usuario',
+    '/obras','/obra',
+    '/obras','/obra',
+    '/obras','/obra',
+    '/capitulos','/capitulo',
+    '/agentes','/agente',
+  ], comp: DashboardLayout },
   { routes: [], comp: BlankLayout }
 ];
 

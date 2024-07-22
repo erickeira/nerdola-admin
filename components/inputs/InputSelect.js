@@ -121,7 +121,7 @@ export default function InputSelect({
         onChange={handleChange}
         isMulti={isMulti}
         hideSelectedOptions={false}
-        // closeMenuOnSelect={false}
+        closeMenuOnSelect={!isMulti}
         noOptionsMessage={() => "Sem opções"}
       />  
       {!isError ? (

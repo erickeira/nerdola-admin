@@ -1,7 +1,7 @@
 
 import axios from 'axios';
 import { parseCookies } from 'nookies';
-const apiUrl =  "http://localhost:3000/" 
+export const apiUrl =  "https://api.nerdola.com.br/" 
 
 const api = axios.create({
     baseURL: apiUrl,
@@ -23,6 +23,10 @@ api?.interceptors?.response.use(function (response) {
 }, async function (error) {
     let data  = error?.response?.data
     let status = error?.response?.status
+
+    if(status == 401 && window.location.href != "/login"){
+        window.location.pathname = "/login"
+    }
 
     return Promise.reject(error);
 });

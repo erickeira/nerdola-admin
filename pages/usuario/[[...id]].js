@@ -23,17 +23,16 @@ import {
 
 import { useRouter } from 'next/router';
 import { useState , useRef , useEffect} from 'react';
-import dayjs from 'dayjs';
 import CustomHead from '@/components/CustomHead';
-import FotoPicker from '@/components/FotoPicker';
-import InputSelect from '@/components/inputs/InputSelect';
 import api from '@/utils/api';
+import InputSelect from '@/components/inputs/InputSelect';
 
-export default function Produto() {
+export default function Usuario() {
+    const keyName = "Usuario"
+    const key = "usuarios";
+    const editKey = "usuario";
     const {navigate} = useGlobal()
-    const [obra, setObra] = useState({
-      status: 1
-    })
+    const [ formulario, setFormulario] = useState({})
     const [ errors, setErrors] = useState({})
     const [ loading, setLoading] = useState(false)
     const router = useRouter()
@@ -42,13 +41,13 @@ export default function Produto() {
 
     const handleFormChange = (dado) => {
       setErrors({})
-      setObra({ ...obra, ...dado });
+      setFormulario({ ...formulario, ...dado });
     }
     const handleValidateForm = (form) => {
       const newErrors = { 
-          nome:  !form.nome ? "Infome o nome da obra" : false,
-          formato:  !form.formato ? "Infome o formato da obra" : false,
-          descricao:  !form.descricao || form.descricao.length < 10 ? "Infome a descrição da obra" : false
+          nome:  !form.nome ? "Infome o nome" : false,
+          email:  !form.email ? "Infome o e-mail" : false,
+          telefone:  !form.telefone ? "Infome o telefone" : false
       }
       setErrors(newErrors)
 
@@ -69,22 +68,21 @@ export default function Produto() {
 
     const refs = {
       nome : useRef(null),
-      descricao : useRef(null),
-      imagem : useRef(null),
-      formato : useRef(null),
+      email : useRef(null),
+      telefone : useRef(null),
     }
 
     const submitHandler = async (event) => {
       event.preventDefault()
-      if(!handleValidateForm(obra) || loading) return 
+      if(!handleValidateForm(formulario) || loading) return 
       setLoading(true)
       try{
         //INSERINDO
-        if(id)  await api.patch(`obras/${id}`, { ...obra })
-        else  await api.post('obras', { ...obra })
+        if(id)  await api.patch(`${key}/${id}`, { ...formulario })
+        else  await api.post(`${key}`, { ...formulario })
        
         router.back()
-        setObra({})
+        setFormulario({})
         toast({
           description: (
             id ?  
@@ -109,54 +107,21 @@ export default function Produto() {
 
 
     useEffect(() => {
-       if(id) getObra(id)
+       if(id) getTag(id)
     },[id])
 
-    useEffect(() => {
-        getTags()
-        getStatusList()
-    },[])
 
-    const getObra = async (id) => {
+    const getTag = async (id) => {
         setLoading(true)
         try{
-            const response = await api.get(`obras/${id}`)
-            setObra({
-              ...response.data,
-              tags: response.data.tags?.map(tag => tag.id),
-              status: response.data.status.id
-            })
+            const response = await api.get(`${key}/${id}`)
+            setFormulario(response.data)
         }catch(error){
 
         } finally {
             setLoading(false)
         }
     }
-
-    const[ tags, setTags] = useState([])
-    const getTags = async (id) => {
-        setLoading(true)
-        try{
-            const response = await api.get(`tags`)
-            setTags(response.data)
-        }catch(error){
-
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const[ statusList, setStatusList] = useState([])
-    const getStatusList = async (id) => {
-        try{
-            const response = await api.get(`obra-status`)
-            setStatusList(response.data)
-        }catch(error){
-
-        } finally {
-        }
-    }
-
 
     return (
       <>
@@ -170,8 +135,8 @@ export default function Produto() {
           direction="column"
         >
           <form onSubmit={submitHandler} >
-          <Text fontWeight="600" fontSize={20}>Obra</Text>
-          <Divider my="30px"/>
+            <Text fontWeight="600" fontSize={20}>{keyName}</Text>
+            <Divider my="30px"/>
             <Flex justify="space-between" minWidth="900px" maxWidth="1000px" width="100%" display={"flex"}  mb="25px">
               <Button
                   w="150px"
@@ -196,11 +161,29 @@ export default function Produto() {
             </Flex>
             <Box boxShadow='base' maxWidth="1000px" w="100%" py="30px" px={{base: "15px", lg: "30px"}} bgColor="#fff" borderRadius="md">
               <Grid templateColumns={{ base: 'repeat(1, 1fr)',lg: 'repeat(4, 1fr)' }} gap="5px" mb={3}>
+                <GridItem w='100%' colSpan={{ base: 4, lg: 1}}>
+                  <InputSelect
+                      label="Status*"
+                      widht="100%"
+                      value={formulario.status}
+                      isError={!!errors.status}
+                      errorText={errors.status}
+                      onChange={(e) => handleFormChange({ status: e.value })}
+                      inputRef={refs.status}
+                      options={[
+                        { value : 'ativo', label: 'Ativo'},
+                        { value : 'inativo', label: 'Inativo'},
+                        { value : 'banido', label: 'Banido'},
+                        { value : 'bloqueado', label: 'Bloqueado'},
+                      ]}
+                      mb="15px"
+                  />
+                </GridItem>
                 <GridItem w='100%' colSpan={{ base: 4, lg: 4}}>
                   <InputText
-                    label="Nome obra*"
+                    label="Nome*"
                     widht="100%"
-                    value={obra.nome}
+                    value={formulario.nome}
                     isError={!!errors.nome}
                     errorText={errors.nome}
                     onChange={(e) => handleFormChange({ nome: e.target.value })}
@@ -209,77 +192,42 @@ export default function Produto() {
                   />
                 </GridItem>
                 <GridItem w='100%' colSpan={{ base: 4, lg: 4}}>
-                  <InputSelect
-                      label="Tags*"
-                      widht="100%"
-                      value={obra.tags}
-                      isError={!!errors.tags}
-                      errorText={errors.tags}
-                      onChange={(e) => {
-                        const tags = e.map(t => t.value)
-                        handleFormChange({ tags })
-                      }}
-                      inputRef={refs.tags}
-                      options={tags.map((opt) => ({
-                        value : opt.id,
-                        label: opt.nome
-                      }))}
-                      isMulti
+                  <InputText
+                    label="Email*"
+                    widht="100%"
+                    value={formulario.email}
+                    isError={!!errors.email}
+                    errorText={errors.email}
+                    onChange={(e) => handleFormChange({ email: e.target.value })}
+                    inputRef={refs.email}
                       mb="15px"
                   />
                 </GridItem>
                 <GridItem w='100%' colSpan={{ base: 4, lg: 1}}>
                   <InputText
-                    label="Formato*"
-                    placeholder='Mangá, Manhwa ....'
+                    label="Telefone*"
                     widht="100%"
-                    value={obra.formato}
-                    isError={!!errors.formato}
-                    errorText={errors.formato}
-                    onChange={(e) => handleFormChange({ formato: e.target.value })}
-                    inputRef={refs.formato}
-                      mb="15px"
+                    value={formulario.telefone}
+                    isError={!!errors.telefone}
+                    errorText={errors.telefone}
+                    onChange={(e) => handleFormChange({ telefone: e.target.value })}
+                    inputRef={refs.telefone}
+                    mb="15px"
+                    type='phone'
                   />
                 </GridItem>
-                <GridItem w='100%' colSpan={{ base: 4, lg: 1}}>
-                    <InputSelect
-                        label="Status*"
-                        widht="100%"
-                        value={obra.status}
-                        isError={!!errors.status}
-                        errorText={errors.status}
-                        onChange={(e) => handleFormChange({ status: e.value })}
-                        inputRef={refs.status}
-                        options={statusList.map((status) => ({
-                            value : status.id,
-                            label: status.nome
-                        }))}
-                        mb="15px"
-                    />
-                </GridItem>
-                <GridItem w='100%' colSpan={{ base: 4, lg: 4}}>
+                <GridItem w='100%' colSpan={{ base: 4, lg: 3}}/>
+                <GridItem w='100%' colSpan={{ base: 4, lg: 2}}>
                   <InputText
-                    label="Descrição*"
+                    label="Senha*"
                     widht="100%"
-                    height="300px"
-                    value={obra.descricao}
-                    isError={!!errors.descricao}
-                    errorText={errors.descricao}
-                    onChange={(e) => handleFormChange({ descricao: e.target.value })}
-                    inputRef={refs.descricao}
-                    area
-                  />
-                </GridItem>
-                
-                <GridItem mt="20px" w='100%' colSpan={{ base: 4, lg: 4}} mb="15px">
-                  <Text as="b">IMAGEM:</Text>
-                </GridItem>
-                <GridItem w='100%' colSpan={{ base: 4, lg: 4}}>
-                  <FotoPicker 
-                    data={obra.imagem}
-                    onChange={(imagem) => {
-                      handleFormChange({ imagem })
-                    }}  
+                    value={formulario.senha}
+                    isError={!!errors.senha}
+                    errorText={errors.senha}
+                    onChange={(e) => handleFormChange({ senha: e.target.value })}
+                    inputRef={refs.senha}
+                    mb="15px"
+                    type='phone'
                   />
                 </GridItem>
               </Grid>

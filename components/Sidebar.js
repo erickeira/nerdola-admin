@@ -20,12 +20,12 @@ import { useGlobal } from "@/context/GlobalContext";
 
 export default function SideBar({menuClosed,setMenuClosed, drawerOpen, setDrawerOpen}){
     const router = useRouter()
-    const {navigate} = useGlobal()
+    const { navigate } = useGlobal()
     const handleClick = (rota) => {
       navigate(rota)
     }
-    // const logo =  menuClosed ? "/svg/logo_pequena.svg" : "/svg/logo.svg"
-    const isActive = (path) => router.pathname.startsWith(path);
+    const logo =  menuClosed ? "/logo_pequena.png" : "/logo.png"
+    const isActive = (path) => router.pathname == path;
     const IconArrow = menuClosed ? ChevronRightIcon : ChevronLeftIcon
      
     const closeDrawer = () => {
@@ -33,28 +33,21 @@ export default function SideBar({menuClosed,setMenuClosed, drawerOpen, setDrawer
     }
     
     return(
-      <Box 
-        borderRight="1px solid #d1d1d1"
-      >
+      <Box borderRight="1px solid #d1d1d1">
         <Sidebar 
-            backgroundColor="#234E52" 
+            backgroundColor="#191919" 
             style={styles.sidebar}
             collapsed={menuClosed}
             toggled={drawerOpen}
             onBackdropClick={closeDrawer}	
             breakPoint="lg"
           >
-          <Center h="60px">
-            <Center h="60px" p="30px">
-              {  menuClosed ? 
-                <Text color="#fff">
-                  N
-                </Text> :  
-                <Text color="#fff">
-                  Nerdola
-                </Text>
-              } 
-            </Center>
+          
+          <Center h="60px" py="35px">
+              <Image
+                src={logo}
+                h="50px"
+              />
           </Center>
           <Divider mb={5}  color={'#fff'}/>
           
@@ -65,9 +58,9 @@ export default function SideBar({menuClosed,setMenuClosed, drawerOpen, setDrawer
                 if (level === 0)
                   return {
                     color: '#000',
-                    backgroundColor: active ? '#1D4044' : undefined,
+                    backgroundColor: active ? '#232323' : undefined,
                     "&:hover": {
-                       backgroundColor: "#1D4044 !important"
+                       backgroundColor: "#232323 !important"
                      },
                     margin: '5px 10px',
                     borderRadius: 5,
@@ -84,9 +77,42 @@ export default function SideBar({menuClosed,setMenuClosed, drawerOpen, setDrawer
                 closeDrawer()
               }} 
               style={styles.textItem} 
-              icon={<IconListLetters size={20}/>}
+              // icon={<IconListLetters size={20}/>}
             > 
               Obras
+            </MenuItem>
+            <MenuItem 
+              active={isActive('/obras-status')} 
+              onClick={() => {
+                handleClick('/obras-status')
+                closeDrawer()
+              }} 
+              style={styles.textItem} 
+              // icon={<IconListLetters size={20}/>}
+            > 
+              Obra Status
+            </MenuItem>
+            <MenuItem 
+              active={isActive('/tags')} 
+              onClick={() => {
+                handleClick('/tags')
+                closeDrawer()
+              }} 
+              style={styles.textItem} 
+              // icon={<IconListLetters size={20}/>}
+            > 
+              Tags
+            </MenuItem>
+            <MenuItem 
+              active={isActive('/usuarios')} 
+              onClick={() => {
+                handleClick('/usuarios')
+                closeDrawer()
+              }} 
+              style={styles.textItem} 
+              // icon={<IconListLetters size={20}/>}
+            > 
+              Usuarios
             </MenuItem>
           </Menu>
         </Sidebar>

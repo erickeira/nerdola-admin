@@ -28,22 +28,33 @@ import {
     MenuOptionGroup,
     MenuDivider,
     Divider,
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbSeparator,
 } from '@chakra-ui/react';
 import { useGlobal } from '@/context/GlobalContext';
 import { ptBR } from '@/utils/datagrid_ptBr';
 import { AddIcon, DeleteIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
 import api from '@/utils/api';
 import { IconPhoto , } from '@tabler/icons-react';
+import { useRouter } from 'next/router';
+import dayjs from 'dayjs';
 
 
-export default function Cadastros() {
+export default function Capitulos() {
+    const keyName = "Capitulos"
+    const key = "capitulos";
+    const editKey = "capitulo";
     const { navigate } = useGlobal()
-    const [obras, setObras] = useState([])
+    const [dados, setDados] = useState([])
     const [ isLoading, setLoading] = useState(true)
     const { isOpen : isOpenDelete, onOpen : onOpenDelete, onClose: onCloseDelete } = useDisclosure()
     const [ idAction, setIdAction ] = useState(null)
     const cancelRef = useRef()
     const toast = useToast()
+    const router = useRouter()
+    const { id } = router.query
 
     const columns = [
         {
@@ -84,54 +95,22 @@ export default function Cadastros() {
         },
         {
             field: 'nome',
-            headerName: 'Nome ',
-            editable: false,
-            // flex: 1,
+            headerName: 'Nome',
             width: 300,
-        },
-        {
-            field: 'formato',
-            headerName: 'Formato',
-            width: 200,
             editable: false,
         },
         {
-            field: 'total_capitulos',
-            headerName: 'Num. capitulos',
-            width: 130,
-            editable: false
+            field: 'numero',
+            headerName: 'Número',
+            width: 250,
+            editable: false,
         },
         {
-            field: 'status',
-            headerName: 'Status',
+            field: 'criado_em',
+            headerName: 'Criado em',
+            width: 250,
             editable: false,
-            width: 130,
-            renderCell: (params) => {
-                console.log(params)
-                const statusColor = {
-                    1 : 'green'
-                }[params.id]
-
-                return (
-                    <Flex
-                        height="100%"
-                        align="center"
-                        justify="center"
-                    >
-                        <Tag 
-                            h="fit-content" 
-                            px="15px"
-                            colorScheme={statusColor}
-                            borderRadius="full"
-                            size="sm"
-                            w="100px"
-                            justifyContent="center"
-                        >
-                            {params?.value}
-                        </Tag>
-                    </Flex>
-                )
-            }
+            valueGetter: (criado_em) => dayjs(criado_em).format('DD/MM/YYYY hh:mm')
         },
         {
             field: 'actions',
@@ -141,13 +120,6 @@ export default function Cadastros() {
             cellClassName: 'actions',
             getActions: ({ id }) => {   
               return [
-                <IconButton
-                    icon={<HamburgerIcon/>}
-                    onClick={(e) => {
-                        e.stopPropagation(); 
-                        onCapitulos(id)
-                    }}
-                />,
                 <IconButton
                     icon={<EditIcon/>}
                     onClick={(e) => {
@@ -170,15 +142,16 @@ export default function Cadastros() {
         },
     ];
 
-    useEffect(() => {
-        getObras()
-    },[])
 
-    const getObras = async () => {
+    const getDados = async (id) => {
         try{
-            const response = await api.get('obras')
+            const response = await api.get(`${key}`,{
+                params:{
+                    obr_id: id
+                }
+            })
             setLoading(true)
-            setObras(response.data)
+            setDados(response.data)
         }catch(error){
           console.log(error)
         } finally {
@@ -187,22 +160,22 @@ export default function Cadastros() {
     }
 
     const onEdit = (id) => {
-        navigate(`/obra/${id}`)
+        navigate(`/${editKey}/${id}`)
     };   
 
     const onDelete = async (e) => {
         onCloseDelete()
         if(idAction){
             try{
-                const response = await api.delete(`obras/${idAction}`)
+                const response = await api.delete(`${key}/${idAction}`)
                 toast({
-                    title: 'Obra removida com sucesso!.',
+                    title: 'Removido(a) com sucesso!.',
                     status: 'success',
                     position: 'bottom-right',
                     duration: 3000,
                     isClosable: true,
                 })
-                getObras()
+                getDados()
             }catch(error){
               console.log(error)
             } finally {
@@ -211,8 +184,28 @@ export default function Cadastros() {
         }
     };
 
-    const onCapitulos = (id) => {
-        navigate(`/capitulos/${id}`)
+    useEffect(() => {
+        if(id) {
+            getObra(id)
+            getDados(id)
+        }
+     },[id])
+
+     const [obra, setObra] = useState({})
+    const getObra = async (id) => {
+        setLoading(true)
+        try{
+            const response = await api.get(`obras/${id}`)
+            setObra({
+              ...response.data,
+              tags: response.data.tags?.map(tag => tag.id),
+              status: response.data.status.id
+            })
+        }catch(error){
+
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
@@ -225,13 +218,31 @@ export default function Cadastros() {
                     }
                 }}    
             >
+                <Breadcrumb>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href='#'>{keyName}</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href='#'>{obra.nome}</BreadcrumbLink>
+                    </BreadcrumbItem>
+                </Breadcrumb>
+                <Divider my="30px"/>
                 <Flex mb="10px">
+                    <Button
+                    w="150px"
+                    onClick={() => {
+                        router.back()
+                    }}
+                    size="sm"
+                    >
+                    Voltar
+                    </Button>
                     <Spacer/>
                     <Button 
                         size="sm" 
                         rightIcon={<AddIcon/>}
                         onClick={() => {
-                            navigate('/obra')
+                            navigate(`/${editKey}`)
                         }}
                         variant="outline"
                         colorScheme="blue"
@@ -240,14 +251,14 @@ export default function Cadastros() {
                     </Button>
                 </Flex>
                 <DataGrid
-                    rows={obras}
+                    rows={dados}
                     columns={columns}
                     initialState={{
-                    pagination: {
-                        paginationModel: {
-                        pageSize: 15,
+                        pagination: {
+                            paginationModel: {
+                            pageSize: 15,
+                            },
                         },
-                    },
                     }}
                     rowHeight={80}
                     pageSizeOptions={[15]}
@@ -256,6 +267,7 @@ export default function Cadastros() {
                     sx={{
                         // minHeight: "calc(100vh - 120px)",
                         backgroundColor: '#fff',
+                        width: '100%'
                     }}
                     localeText={ptBR}
                     autoHeight

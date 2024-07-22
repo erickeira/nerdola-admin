@@ -54,7 +54,7 @@ import {  resizeImage } from '@/utils'
 import Dropzone, { useDropzone } from 'react-dropzone';
 import { faker } from '@faker-js/faker';
 
-const FotoPicker = ({ imagem, onChange}) => {
+const FotoPicker = ({ imagem, onChange, height}) => {
     const [image, setImage] = useState(imagem)
     const [ imageError, setImageError] = useState(false)
     const [ deleteHovered, setDeleteHovered] = useState(false)
@@ -143,7 +143,7 @@ const FotoPicker = ({ imagem, onChange}) => {
     return (
         <>
         <Flex gap="20px">
-            <Box width={"300px"} height={"400px"} bgColor="#f4f4f4">
+            <Box width={"300px"} height={height || "400px"} bgColor="#f4f4f4">
                 {
                     image ? 
                     <Flex

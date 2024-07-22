@@ -28,6 +28,10 @@ import {
     MenuOptionGroup,
     MenuDivider,
     Divider,
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbSeparator,
 } from '@chakra-ui/react';
 import { useGlobal } from '@/context/GlobalContext';
 import { ptBR } from '@/utils/datagrid_ptBr';
@@ -36,9 +40,12 @@ import api from '@/utils/api';
 import { IconPhoto , } from '@tabler/icons-react';
 
 
-export default function Cadastros() {
+export default function Tags() {
+    const keyName = "Tags"
+    const key = "tags";
+    const editKey = "tag";
     const { navigate } = useGlobal()
-    const [obras, setObras] = useState([])
+    const [dados, setDados] = useState([])
     const [ isLoading, setLoading] = useState(true)
     const { isOpen : isOpenDelete, onOpen : onOpenDelete, onClose: onCloseDelete } = useDisclosure()
     const [ idAction, setIdAction ] = useState(null)
@@ -47,107 +54,25 @@ export default function Cadastros() {
 
     const columns = [
         {
-            field: 'imagem',
-            headerName: 'Imagem',
-            width: 100,
+            field: 'id',
+            headerName: 'ID',
             editable: false,
-            renderCell: (params) => {
-                return (
-                    <Box height="80px" p="0px">
-                        {
-                            params.row?.imagem ?
-                            <Image
-                                src={ params.row?.imagem }
-                                w="100%"
-                                h="100%"
-                                objectFit="contain"
-                            />
-                            :
-                            <Flex
-                                flexDirection="column" 
-                                gap={3} 
-                                w={'100%'}
-                                h={'100%'}
-                                justify="center"
-                                alignItems={'center'}
-                                borderColor={'#fff'}
-                                bgColor="#f4f4f4"
-                                borderRadius="5px"
-                            >
-                                <IconPhoto color="#666"/>
-                            </Flex>
-                        }
-                    </Box>
-                   
-                )
-            }
+            // flex: 1,
         },
         {
             field: 'nome',
-            headerName: 'Nome ',
+            headerName: 'Nome',
+            width: 250,
             editable: false,
-            // flex: 1,
-            width: 300,
-        },
-        {
-            field: 'formato',
-            headerName: 'Formato',
-            width: 200,
-            editable: false,
-        },
-        {
-            field: 'total_capitulos',
-            headerName: 'Num. capitulos',
-            width: 130,
-            editable: false
-        },
-        {
-            field: 'status',
-            headerName: 'Status',
-            editable: false,
-            width: 130,
-            renderCell: (params) => {
-                console.log(params)
-                const statusColor = {
-                    1 : 'green'
-                }[params.id]
-
-                return (
-                    <Flex
-                        height="100%"
-                        align="center"
-                        justify="center"
-                    >
-                        <Tag 
-                            h="fit-content" 
-                            px="15px"
-                            colorScheme={statusColor}
-                            borderRadius="full"
-                            size="sm"
-                            w="100px"
-                            justifyContent="center"
-                        >
-                            {params?.value}
-                        </Tag>
-                    </Flex>
-                )
-            }
         },
         {
             field: 'actions',
             type: 'actions',
             headerName: 'Ações',
-            width: 200,
+            width: 100,
             cellClassName: 'actions',
             getActions: ({ id }) => {   
               return [
-                <IconButton
-                    icon={<HamburgerIcon/>}
-                    onClick={(e) => {
-                        e.stopPropagation(); 
-                        onCapitulos(id)
-                    }}
-                />,
                 <IconButton
                     icon={<EditIcon/>}
                     onClick={(e) => {
@@ -171,14 +96,14 @@ export default function Cadastros() {
     ];
 
     useEffect(() => {
-        getObras()
+        getDados()
     },[])
 
-    const getObras = async () => {
+    const getDados = async () => {
         try{
-            const response = await api.get('obras')
+            const response = await api.get(`${key}`)
             setLoading(true)
-            setObras(response.data)
+            setDados(response.data)
         }catch(error){
           console.log(error)
         } finally {
@@ -187,33 +112,31 @@ export default function Cadastros() {
     }
 
     const onEdit = (id) => {
-        navigate(`/obra/${id}`)
+        navigate(`/${editKey}/${id}`)
     };   
 
     const onDelete = async (e) => {
         onCloseDelete()
         if(idAction){
             try{
-                const response = await api.delete(`obras/${idAction}`)
+                const response = await api.delete(`${key}/${idAction}`)
                 toast({
-                    title: 'Obra removida com sucesso!.',
+                    title: 'Removido(a) com sucesso!.',
                     status: 'success',
                     position: 'bottom-right',
                     duration: 3000,
                     isClosable: true,
                 })
-                getObras()
+                getDados()
             }catch(error){
               console.log(error)
             } finally {
               setLoading(false)
             }
         }
+        
+      
     };
-
-    const onCapitulos = (id) => {
-        navigate(`/capitulos/${id}`)
-    }
 
     return (
         <Flex justify="center" >
@@ -225,13 +148,18 @@ export default function Cadastros() {
                     }
                 }}    
             >
+                <Breadcrumb>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href='#'>{keyName}</BreadcrumbLink>
+                    </BreadcrumbItem>
+                </Breadcrumb>
                 <Flex mb="10px">
                     <Spacer/>
                     <Button 
                         size="sm" 
                         rightIcon={<AddIcon/>}
                         onClick={() => {
-                            navigate('/obra')
+                            navigate(`/${editKey}`)
                         }}
                         variant="outline"
                         colorScheme="blue"
@@ -240,22 +168,22 @@ export default function Cadastros() {
                     </Button>
                 </Flex>
                 <DataGrid
-                    rows={obras}
+                    rows={dados}
                     columns={columns}
                     initialState={{
-                    pagination: {
-                        paginationModel: {
-                        pageSize: 15,
+                        pagination: {
+                            paginationModel: {
+                            pageSize: 15,
+                            },
                         },
-                    },
                     }}
-                    rowHeight={80}
                     pageSizeOptions={[15]}
                     // checkboxSelection
                     disableRowSelectionOnClick
                     sx={{
                         // minHeight: "calc(100vh - 120px)",
                         backgroundColor: '#fff',
+                        width: '100%'
                     }}
                     localeText={ptBR}
                     autoHeight
