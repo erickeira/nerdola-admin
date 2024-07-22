@@ -81,6 +81,7 @@ export default function Obra() {
       setLoading(true)
       try{
         //INSERINDO
+        if(!!obra.uploadimagem) delete obra.imagem
         if(id)  await api.patch(`obras/${id}`, { ...obra })
         else  await api.post('obras', { ...obra })
        
@@ -273,6 +274,17 @@ export default function Obra() {
                 
                 <GridItem mt="20px" w='100%' colSpan={{ base: 4, lg: 4}} mb="15px">
                   <Text as="b">IMAGEM:</Text>
+                </GridItem>
+                <GridItem w='100%' colSpan={{ base: 4, lg: 4}}>
+                  <InputText
+                    widht="100%"
+                    placeholder="Url da imagem"
+                    value={obra.uploadimagem}
+                    isError={!!errors.uploadimagem}
+                    errorText={errors.uploadimagem}
+                    onChange={(e) => handleFormChange({ imagem: e.target.value })}
+                    inputRef={refs.imagem}
+                  />
                 </GridItem>
                 <GridItem w='100%' colSpan={{ base: 4, lg: 4}} >
                   <FotoPicker 

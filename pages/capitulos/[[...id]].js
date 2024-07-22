@@ -176,9 +176,8 @@ export default function Capitulos() {
                     duration: 3000,
                     isClosable: true,
                 })
-                getDados()
+                getDados(id)
             }catch(error){
-              console.log(error)
             } finally {
               setLoading(false)
             }
@@ -192,7 +191,7 @@ export default function Capitulos() {
         }
      },[id])
 
-     const [obra, setObra] = useState({})
+    const [obra, setObra] = useState({})
     const getObra = async (id) => {
         setLoading(true)
         try{
