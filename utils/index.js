@@ -2,6 +2,7 @@ import axios from "axios";
 
 const key_encrypt_login = "nerdola-admin"
 
+// const imageUrl = "http://localhost:3001/"
 const imageUrl = "https://storage.nerdola.com.br/"
 
 const formatMoney = (value) => {

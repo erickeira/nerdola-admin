@@ -16,7 +16,7 @@ export async function middleware(request) {
         'User-Agent': `${request?.headers?.get('user-agent')} ${request.cookies.get('authToken')?.value}`
       }
     })
-    console.log(response.status)
+
     if (response.status === 401) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
@@ -31,7 +31,7 @@ export async function middleware(request) {
     return NextResponse.next();
     
   } catch(error) {
-    // console.log(error)
+    console.log(error)
     return NextResponse.redirect(new URL('/login', request.url))
   }
 }
@@ -49,6 +49,5 @@ export const config = {
     '/obra/:path*',
     '/obras/:path*',
     '/obra/:path*',
-    '/login/:path*',
   ],
 }

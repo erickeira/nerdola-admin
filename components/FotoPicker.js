@@ -68,6 +68,7 @@ const FotoPicker = ({ imagem, onChange, height, url }) => {
     useEffect(() => {
         if(imagem != image) {
             setImage(imagem)
+            setImageError(false)
         }
     },[imagem])
     
@@ -85,17 +86,17 @@ const FotoPicker = ({ imagem, onChange, height, url }) => {
                         return null;
                     }
                    
-                    const extension = file.name.split('.').pop().toLowerCase();
-                    if (extension !== 'jpg' && extension !== 'jpeg') {
-                        toast({
-                            description: 'A imagem deve estar no formatado JPG',
-                            status: 'error',
-                            duration: 3000,
-                            isClosable: true,
-                            position: 'bottom-right',
-                        });
-                        return null;
-                    }
+                    // const extension = file.name.split('.').pop().toLowerCase();
+                    // if (extension !== 'jpg' && extension !== 'jpeg') {
+                    //     toast({
+                    //         description: 'A imagem deve estar no formatado JPG',
+                    //         status: 'error',
+                    //         duration: 3000,
+                    //         isClosable: true,
+                    //         position: 'bottom-right',
+                    //     });
+                    //     return null;
+                    // }
                     
                   const base64String = await new Promise((resolve) => {
                     const reader = new FileReader();
@@ -109,16 +110,16 @@ const FotoPicker = ({ imagem, onChange, height, url }) => {
                     image.src = base64String;
                   });
     
-                  if (img.width < 640 || img.height < 480) {
-                    toast({
-                      description: 'A imagem deve ter pelo menos 640x480 pixels',
-                      status: 'error',
-                      duration: 3000,
-                      isClosable: true,
-                      position: 'bottom-right',
-                    });
-                    return null; 
-                  }
+                //   if (img.width < 640 || img.height < 480) {
+                //     toast({
+                //       description: 'A imagem deve ter pelo menos 640x480 pixels',
+                //       status: 'error',
+                //       duration: 3000,
+                //       isClosable: true,
+                //       position: 'bottom-right',
+                //     });
+                //     return null; 
+                //   }
     
                   const resizedImage = await resizeImage(base64String);
                   return resizedImage;
@@ -152,7 +153,7 @@ const FotoPicker = ({ imagem, onChange, height, url }) => {
                     (
                         !imageError ? 
                         <ImageChakra 
-                            src={image.endsWith('.jpg') ? `${url}${image}` : image}
+                            src={image.endsWith('.jpg') && !image.startsWith('http') ? `${url}${image}` : image}
                             alt={""}
                             width="100%"
                             onError={() => setImageError(true)}

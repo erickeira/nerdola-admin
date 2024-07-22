@@ -202,9 +202,20 @@ export default function Capitulo() {
                   <Text as="b">IMAGEM:</Text>
                 </GridItem>
                 <GridItem w='100%' colSpan={{ base: 4, lg: 4}}>
+                  <InputText
+                    widht="100%"
+                    placeholder="Url da imagem"
+                    value={formulario.imagem}
+                    isError={!!errors.imagem}
+                    errorText={errors.imagem}
+                    onChange={(e) => handleFormChange({ imagem: e.target.value })}
+                    inputRef={refs.imagem}
+                  />
+                </GridItem>
+                <GridItem w='100%' colSpan={{ base: 4, lg: 4}}>
                   <FotoPicker 
-                    data={formulario.imagem}
-                    imagem={`${imageUrl}obras/${formulario.obra?.id}/`}
+                    imagem={formulario.imagem}
+                    url={`${imageUrl}obras/${formulario.obra?.id}/`}
                     height={300}
                     onChange={(imagem) => {
                       handleFormChange({ imagem })
