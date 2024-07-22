@@ -54,7 +54,7 @@ import {  resizeImage } from '@/utils'
 import Dropzone, { useDropzone } from 'react-dropzone';
 import { faker } from '@faker-js/faker';
 
-const FotoPicker = ({ imagem, onChange, height}) => {
+const FotoPicker = ({ imagem, onChange, height, url }) => {
     const [image, setImage] = useState(imagem)
     const [ imageError, setImageError] = useState(false)
     const [ deleteHovered, setDeleteHovered] = useState(false)
@@ -66,7 +66,9 @@ const FotoPicker = ({ imagem, onChange, height}) => {
     
     const toast = useToast()
     useEffect(() => {
-        setImage(imagem)
+        if(imagem != image) {
+            setImage(imagem)
+        }
     },[imagem])
     
     const onDrop = async (fotosDrop) => {
@@ -136,48 +138,35 @@ const FotoPicker = ({ imagem, onChange, height}) => {
         onChange('')  
     }
     
-    const { isOpen: isOpenFoto, onOpen: onOpenFoto, onClose: onCloseFoto } = useDisclosure()
+  
     const [ imageOpened, setImageOpened ] = useState({})
     const { acceptedFiles, getRootProps, getInputProps, open  } = useDropzone({ onDrop })
+
 
     return (
         <>
         <Flex gap="20px">
-            <Box width={"300px"} height={height || "400px"} bgColor="#f4f4f4">
+            <Box width={"300px"} height={height || "440px"} bgColor="#f4f4f4" overflow="hidden">
                 {
                     image ? 
-                    <Flex
-                        bgColor="#D9D9D9"
-                        boxShadow={ 'rgb(63 63 68 / 5%) 0px 0px 0px 1px, rgb(34 33 81 / 15%) 0px 1px 3px 0px'}
-                        w={"100%"}
-                        h="100%"
-                        flexDirection="column" 
-                        justify="center"
-                        alignItems={'center'}
-                        onMouseEnter={() => setHovered(true)}
-                        onMouseLeave={() => setHovered(false)}
-                        position="relative"
-                    >
-                        
-                        {
+                    (
                         !imageError ? 
-                            <ImageChakra 
-                                src={image}
-                                alt={""}
-                                onError={() => setImageError(true)}
-                                objectFit='contain' 
-                                onClick={!deleteHovered ? onOpenFoto : () => {}}
-                            />  
-                            :
-                            <Flex color="#666" direction="column" align="center">
-                                <IconAlertCircle/>
-                                <Text>
-                                    Erro na imagem
-                                </Text>
-                            </Flex>
-                        }
-                        
-                    </Flex>
+                        <ImageChakra 
+                            src={image.endsWith('.jpg') ? `${url}${image}` : image}
+                            alt={""}
+                            width="100%"
+                            onError={() => setImageError(true)}
+                            objectFit='contain' 
+                        />  
+                        :
+                        <Flex color="#666" direction="column" align="center" justify="center" h="100%">
+                            <IconAlertCircle/>
+                            <Text>
+                                Erro na imagem
+                            </Text>
+                        </Flex>
+                    )
+            
                     :
                     <Flex
                         flexDirection="column" 
@@ -250,38 +239,6 @@ const FotoPicker = ({ imagem, onChange, height}) => {
                 </Box>
             }
         </Flex>
-        <Modal isOpen={isOpenFoto} onClose={onCloseFoto}>
-            <ModalOverlay />
-            <ModalContent mx="10px">
-              <ModalBody 
-                minH="100px" 
-                w="100%"
-                p="5px"
-               
-            >
-                <Flex
-                    align="center"
-                    minH="300px"
-                    h="100%"
-                >
-                   <ImageChakra 
-                        src={image}
-                        // alt={props.foto?.title}
-                        objectFit='contain' 
-                        zIndex={2}
-                    />  
-                    <CircularProgress
-                        isIndeterminate
-                        position="absolute"
-                        top="45%"
-                        left="45%"
-                    />
-                </Flex>
-            
-             
-              </ModalBody>
-            </ModalContent>
-        </Modal>
         </>
     );
 };

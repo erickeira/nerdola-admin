@@ -33,10 +33,11 @@ import { useGlobal } from '@/context/GlobalContext';
 import { ptBR } from '@/utils/datagrid_ptBr';
 import { AddIcon, DeleteIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
 import api from '@/utils/api';
-import { IconPhoto , } from '@tabler/icons-react';
+import { IconListNumbers, IconPhoto , } from '@tabler/icons-react';
+import { imageUrl } from '@/utils';
 
 
-export default function Cadastros() {
+export default function Obras() {
     const { navigate } = useGlobal()
     const [obras, setObras] = useState([])
     const [ isLoading, setLoading] = useState(true)
@@ -52,12 +53,13 @@ export default function Cadastros() {
             width: 100,
             editable: false,
             renderCell: (params) => {
+                const id = params.row.id
                 return (
                     <Box height="80px" p="0px">
                         {
                             params.row?.imagem ?
                             <Image
-                                src={ params.row?.imagem }
+                                src={`${imageUrl}obras/${id}/${params.row?.imagem}`}
                                 w="100%"
                                 h="100%"
                                 objectFit="contain"
@@ -71,7 +73,7 @@ export default function Cadastros() {
                                 justify="center"
                                 alignItems={'center'}
                                 borderColor={'#fff'}
-                                bgColor="#f4f4f4"
+                                // bgColor="#f4f4f4"
                                 borderRadius="5px"
                             >
                                 <IconPhoto color="#666"/>
@@ -107,10 +109,10 @@ export default function Cadastros() {
             editable: false,
             width: 130,
             renderCell: (params) => {
-                console.log(params)
+
                 const statusColor = {
                     1 : 'green'
-                }[params.id]
+                }[params?.value.id]
 
                 return (
                     <Flex
@@ -127,7 +129,7 @@ export default function Cadastros() {
                             w="100px"
                             justifyContent="center"
                         >
-                            {params?.value}
+                            {params?.value?.nome}
                         </Tag>
                     </Flex>
                 )
@@ -142,7 +144,7 @@ export default function Cadastros() {
             getActions: ({ id }) => {   
               return [
                 <IconButton
-                    icon={<HamburgerIcon/>}
+                    icon={<IconListNumbers stroke={1.25} />}
                     onClick={(e) => {
                         e.stopPropagation(); 
                         onCapitulos(id)

@@ -40,6 +40,7 @@ import api from '@/utils/api';
 import { IconPhoto , } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 import dayjs from 'dayjs';
+import { imageUrl } from '@/utils';
 
 
 export default function Capitulos() {
@@ -68,7 +69,7 @@ export default function Capitulos() {
                         {
                             params.row?.imagem ?
                             <Image
-                                src={ params.row?.imagem }
+                                src={`${imageUrl}obras/${id}/${params.row?.imagem}`}
                                 w="100%"
                                 h="100%"
                                 objectFit="contain"
@@ -82,7 +83,7 @@ export default function Capitulos() {
                                 justify="center"
                                 alignItems={'center'}
                                 borderColor={'#fff'}
-                                bgColor="#f4f4f4"
+                                // bgColor="#f4f4f4"
                                 borderRadius="5px"
                             >
                                 <IconPhoto color="#666"/>

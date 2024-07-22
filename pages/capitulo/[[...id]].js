@@ -26,6 +26,7 @@ import { useState , useRef , useEffect} from 'react';
 import CustomHead from '@/components/CustomHead';
 import api from '@/utils/api';
 import FotoPicker from '@/components/FotoPicker';
+import { imageUrl } from '@/utils';
 
 export default function Capitulo() {
     const keyName = "Capitulo"
@@ -203,6 +204,7 @@ export default function Capitulo() {
                 <GridItem w='100%' colSpan={{ base: 4, lg: 4}}>
                   <FotoPicker 
                     data={formulario.imagem}
+                    imagem={`${imageUrl}obras/${formulario.obra?.id}/`}
                     height={300}
                     onChange={(imagem) => {
                       handleFormChange({ imagem })

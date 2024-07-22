@@ -28,8 +28,9 @@ import CustomHead from '@/components/CustomHead';
 import FotoPicker from '@/components/FotoPicker';
 import InputSelect from '@/components/inputs/InputSelect';
 import api from '@/utils/api';
+import { imageUrl } from '@/utils';
 
-export default function Produto() {
+export default function Obra() {
     const {navigate} = useGlobal()
     const [obra, setObra] = useState({
       status: 1
@@ -157,7 +158,6 @@ export default function Produto() {
         }
     }
 
-
     return (
       <>
         <CustomHead
@@ -274,14 +274,31 @@ export default function Produto() {
                 <GridItem mt="20px" w='100%' colSpan={{ base: 4, lg: 4}} mb="15px">
                   <Text as="b">IMAGEM:</Text>
                 </GridItem>
-                <GridItem w='100%' colSpan={{ base: 4, lg: 4}}>
+                <GridItem w='100%' colSpan={{ base: 4, lg: 4}} >
                   <FotoPicker 
-                    data={obra.imagem}
+                    imagem={obra.imagem}
+                    url={`${imageUrl}obras/${id}/`}
                     onChange={(imagem) => {
                       handleFormChange({ imagem })
                     }}  
                   />
                 </GridItem>
+                {
+                  !id && 
+                  <GridItem w='100%' colSpan={{ base: 4, lg: 1}} mt="25px">
+                    <InputText
+                      label="Número de capitulos*"
+                      widht="100%"
+                      value={obra.total_capitulos}
+                      isError={!!errors.total_capitulos}
+                      errorText={errors.total_capitulos}
+                      onChange={(e) => handleFormChange({ total_capitulos: e.target.value })}
+                      inputRef={refs.total_capitulos}
+                      type="number"
+                    />
+                  </GridItem>
+                }
+                
               </Grid>
             </Box>
             <Flex justify="space-between" maxWidth="1000px" mt="20px" width="100%" display={"flex"}  mb="25px">
