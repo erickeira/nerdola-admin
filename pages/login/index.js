@@ -17,7 +17,7 @@ import { useGlobal } from "@/context/GlobalContext";
 export default function Login() {
     const { handleLogin, navigate } = useGlobal()
     const [ loginForm, setLoginForm ] = useState({
-        email: '',
+        login: '',
         senha: ''
     })
     
@@ -32,8 +32,8 @@ export default function Login() {
       event.preventDefault();
       if(!loading){
         setLoading(true)
-        const user = await handleLogin(loginForm)
-        if(user) navigate('/obras')
+        const authenticated = await handleLogin(loginForm)
+        if(authenticated) navigate('/obras')
         else{
             toast({
                 title: `Falha na autenticação`,
@@ -60,10 +60,10 @@ export default function Login() {
                         <Divider my="30px"/>
                         <InputText 
                             id="input-email" 
-                            label="E-mail" 
+                            label="Login" 
                             variant="filled"
-                            value={loginForm?.email}
-                            onChange={(e) => handleFormChange({ email: e.target.value })}
+                            value={loginForm?.login}
+                            onChange={(e) => handleFormChange({ login: e.target.value })}
                             mb={5}
                         />
                         <InputText 

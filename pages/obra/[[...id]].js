@@ -72,14 +72,17 @@ export default function Produto() {
       formato : useRef(null),
     }
 
+    console.log(obra)
+
     const submitHandler = async (event) => {
-      console.log(!handleValidateForm(obra) || loading)
       event.preventDefault()
       if(!handleValidateForm(obra) || loading) return 
       setLoading(true)
       try{
         //INSERINDO
-        await api.post(`obras`, { ...obra })
+        if(id)  await api.patch(`obras/${id}`, { ...obra })
+        else  await api.post('obras', { ...obra })
+       
         router.back()
         setObra({})
         toast({
@@ -118,7 +121,11 @@ export default function Produto() {
         setLoading(true)
         try{
             const response = await api.get(`obras/${id}`)
-            setObra(response.data)
+            setObra({
+              ...response.data,
+              tags: response.data.tags?.map(tag => tag.id),
+              status: response.data.status.id
+            })
         }catch(error){
 
         } finally {
@@ -252,6 +259,7 @@ export default function Produto() {
                   <InputText
                     label="Descrição*"
                     widht="100%"
+                    height="300px"
                     value={obra.descricao}
                     isError={!!errors.descricao}
                     errorText={errors.descricao}
@@ -268,7 +276,7 @@ export default function Produto() {
                   <FotoPicker 
                     data={obra.imagem}
                     onChange={(imagem) => {
-                      handleFormChange({ imagem})
+                      handleFormChange({ imagem })
                     }}  
                   />
                 </GridItem>

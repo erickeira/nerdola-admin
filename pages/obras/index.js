@@ -19,12 +19,21 @@ import {
     useDisclosure,
     useToast,
     color,
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
+    MenuItemOption,
+    MenuGroup,
+    MenuOptionGroup,
+    MenuDivider,
+    Divider,
 } from '@chakra-ui/react';
 import { useGlobal } from '@/context/GlobalContext';
 import { ptBR } from '@/utils/datagrid_ptBr';
-import { AddIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
+import { AddIcon, DeleteIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
 import api from '@/utils/api';
-import { IconPhoto } from '@tabler/icons-react';
+import { IconPhoto , } from '@tabler/icons-react';
 
 
 export default function Cadastros() {
@@ -128,27 +137,36 @@ export default function Cadastros() {
             field: 'actions',
             type: 'actions',
             headerName: 'Ações',
-            width: 140,
+            width: 100,
             cellClassName: 'actions',
             getActions: ({ id }) => {   
               return [
-                <IconButton
-                    icon={<EditIcon/>}
-                    onClick={(e) => {
-                        e.stopPropagation(); 
-                        onEdit(id)
-                    }}
-                />,
-                <IconButton
-                    icon={<DeleteIcon/>}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        setIdAction(id)
-                        onOpenDelete();
-                    }}
-                    colorScheme="red"
-                    bgColor="red.400"
-                />
+                <Menu>
+                    <MenuButton 
+                        as={IconButton} 
+                        icon={<HamburgerIcon/>}
+                    />
+                    <MenuList>
+                        <MenuItem py="10px">Capitulos</MenuItem>
+                        <Divider/>
+                        <MenuItem
+                            py="10px"
+                            onClick={(e) => {
+                                e.stopPropagation(); 
+                                onEdit(id)
+                            }}
+                        >Editar</MenuItem>
+                        <MenuItem
+                            py="10px"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIdAction(id)
+                                onOpenDelete();
+                            }}
+                            color="red.400"
+                        >Excluir</MenuItem>
+                    </MenuList>
+                </Menu>
               ];
             },
         },
@@ -177,15 +195,24 @@ export default function Cadastros() {
     const onDelete = async (e) => {
         onCloseDelete()
         if(idAction){
-            setObras(prevObras => prevObras.filter(c => c.id != idAction))
+            try{
+                const response = await api.delete(`obras/${idAction}`)
+                toast({
+                    title: 'Obra removida com sucesso!.',
+                    status: 'success',
+                    position: 'bottom-right',
+                    duration: 3000,
+                    isClosable: true,
+                })
+                getObras()
+            }catch(error){
+              console.log(error)
+            } finally {
+              setLoading(false)
+            }
         }
-        toast({
-            title: 'Obra removida com sucesso!.',
-            status: 'success',
-            position: 'bottom-right',
-            duration: 3000,
-            isClosable: true,
-        })
+        
+      
     };
 
     return (

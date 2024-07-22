@@ -18,6 +18,7 @@ import {
 import { parseCookies, setCookie, destroyCookie } from 'nookies'
 import Layout from "@/layouts";
 import * as CryptoJS from "crypto-js";
+import api from "@/utils/api";
 
 export const GlobalContext = createContext({})
 
@@ -65,15 +66,13 @@ export function GlobalProvider({children}){
 
     const handleLogin = async (form) => {
       try{
-        const formText = JSON.stringify(form);
-        const encriptedLoginForm = CryptoJS.AES?.encrypt(formText, key_encrypt_login ).toString();
-        setCookie(undefined, 'encrypted', encriptedLoginForm ,{
+        const response  = await api.post('agentes/login', { ...form})
+        setCookie(undefined, 'token', response.data.token ,{
           maxAge: (60 * 60 * 24) * 1,//1 dia
           secure: true,
           sameSite: 'Strict'
         })
-        setUser({ name: "Erick" })
-        return { name: "Erick" , isAdmin: true };
+        return true;
       }catch(error){
         handleLogout()
         return false

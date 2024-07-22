@@ -126,7 +126,7 @@ const FotoPicker = ({ imagem, onChange}) => {
         let newImage = fotosUri[0]
         
         if(onChange && newImage) {
-            
+            setImage(newImage)
             onChange(newImage);
         }
     }
@@ -143,41 +143,21 @@ const FotoPicker = ({ imagem, onChange}) => {
     return (
         <>
         <Flex gap="20px">
-            <Box width={"300px"} height={"400px"}>
+            <Box width={"300px"} height={"400px"} bgColor="#f4f4f4">
                 {
                     image ? 
                     <Flex
                         bgColor="#D9D9D9"
-                        boxShadow={ isDragging  ? 'rgb(63 63 68 / 5%) 0px 2px 0px 2px, rgb(34 33 81 / 15%) 0px 2px 3px 2px' : 'rgb(63 63 68 / 5%) 0px 0px 0px 1px, rgb(34 33 81 / 15%) 0px 1px 3px 0px'}
+                        boxShadow={ 'rgb(63 63 68 / 5%) 0px 0px 0px 1px, rgb(34 33 81 / 15%) 0px 1px 3px 0px'}
                         w={"100%"}
+                        h="100%"
                         flexDirection="column" 
                         justify="center"
                         alignItems={'center'}
                         onMouseEnter={() => setHovered(true)}
                         onMouseLeave={() => setHovered(false)}
+                        position="relative"
                     >
-                        <Box
-                            position="absolute"
-                            right="3"
-                            top="3"
-                        >
-                            <ScaleFade
-                                in={showButton && !isDragging}
-                            >
-                                <IconButton
-                                    size={"sm"}
-                                    icon={<IconTrash color="#fff" size="15px"/>}
-                                    borderRadius="100%"
-                                    bgColor="#990000"
-                                    _hover={{
-                                        bgColor: "#C23131"
-                                    }}                   
-                                    onClick={handleDelete}
-                                    onMouseEnter={() => setDeleteHovered(true)}
-                                    onMouseLeave={() => setDeleteHovered(false)}
-                                />
-                            </ScaleFade>
-                        </Box>
                         
                         {
                         !imageError ? 
@@ -207,7 +187,6 @@ const FotoPicker = ({ imagem, onChange}) => {
                         justify="center"
                         alignItems={'center'}
                         borderColor={'#fff'}
-                        bgColor="#f4f4f4"
                         borderRadius="5px"
                     >
                         <IconPhoto color="#666"/>
@@ -216,7 +195,7 @@ const FotoPicker = ({ imagem, onChange}) => {
             </Box>
         
             {
-                !image &&
+                !image ?
                 <Box {...getRootProps()}>
                     <input {...getInputProps()} />
                     <Box cursor="pointer">
@@ -244,6 +223,30 @@ const FotoPicker = ({ imagem, onChange}) => {
                             <Text color="#666" fontSize="12px">Arraste a imagem até aqui para fazer upload</Text>
                         </Flex>
                     </Box>
+                </Box>
+                :
+                <Box >
+                     <Flex 
+                        mb={3} 
+                        mt={5} 
+                        size="sm" 
+                        variant='outline'
+                        border= "1px solid #990000"
+                        color="#990000"
+                        w="auto"
+                        p="8px 16px"
+                        borderRadius="4px"
+                        gap="8px"
+                        align="center"
+                        _hover={{
+                            backgroundColor: '#ebf8ff'
+                        }}
+                        justify="center"
+                        onClick={handleDelete}
+                    >
+                        <IconTrash color="#990000" size="15px"/>
+                        Remover imagem
+                    </Flex>
                 </Box>
             }
         </Flex>
