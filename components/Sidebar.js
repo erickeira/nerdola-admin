@@ -4,7 +4,11 @@ import { useState, memo } from 'react'
 import { Sidebar, Menu, MenuItem } from 'react-pro-sidebar';
 import { useRouter } from 'next/router';
 import { 
-    IconListLetters
+  IconBook,
+    IconCheck,
+    IconListLetters,
+    IconTags,
+    IconUsers
 } from '@tabler/icons-react';
 
 import { 
@@ -77,7 +81,7 @@ export default function SideBar({menuClosed,setMenuClosed, drawerOpen, setDrawer
                 closeDrawer()
               }} 
               style={styles.textItem} 
-              // icon={<IconListLetters size={20}/>}
+              icon={<IconBook size={20}/>}
             > 
               Obras
             </MenuItem>
@@ -88,7 +92,7 @@ export default function SideBar({menuClosed,setMenuClosed, drawerOpen, setDrawer
                 closeDrawer()
               }} 
               style={styles.textItem} 
-              // icon={<IconListLetters size={20}/>}
+              icon={<IconCheck size={20}/>}
             > 
               Obra Status
             </MenuItem>
@@ -99,7 +103,7 @@ export default function SideBar({menuClosed,setMenuClosed, drawerOpen, setDrawer
                 closeDrawer()
               }} 
               style={styles.textItem} 
-              // icon={<IconListLetters size={20}/>}
+              icon={<IconTags size={20}/>}
             > 
               Tags
             </MenuItem>
@@ -110,7 +114,7 @@ export default function SideBar({menuClosed,setMenuClosed, drawerOpen, setDrawer
                 closeDrawer()
               }} 
               style={styles.textItem} 
-              // icon={<IconListLetters size={20}/>}
+              icon={<IconUsers size={20}/>}
             > 
               Usuarios
             </MenuItem>
