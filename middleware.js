@@ -23,11 +23,9 @@ export async function middleware(request) {
     if (response.status === 500) {
       return NextResponse.redirect(new URL('/500', request.url))
     }
-    // if (response.status === 404) {
-    //   return NextResponse.redirect(new URL('/404', request.url))
-    // }
+
     if(request.nextUrl.pathname == '/'){
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+      return NextResponse.redirect(new URL('/obras', request.url))
     }
 
     return NextResponse.next();
