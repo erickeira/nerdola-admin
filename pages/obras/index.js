@@ -178,7 +178,11 @@ export default function Obras() {
 
     const getObras = async () => {
         try{
-            const response = await api.get('obras')
+            const response = await api.get('obras', {
+                params: {
+                    limite: 500
+                }
+            })
             setLoading(true)
             setObras(response.data)
         }catch(error){
