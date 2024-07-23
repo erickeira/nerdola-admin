@@ -251,7 +251,7 @@ export default function Obras() {
                     initialState={{
                     pagination: {
                         paginationModel: {
-                        pageSize: 15,
+                        pageSize: 50,
                         },
                     },
                     }}
