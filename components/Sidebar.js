@@ -8,7 +8,9 @@ import {
     IconCheck,
     IconListLetters,
     IconTags,
-    IconUsers
+    IconUsers,
+    IconInbox,
+    IconWorldWww
 } from '@tabler/icons-react';
 
 import { 
@@ -117,6 +119,39 @@ export default function SideBar({menuClosed,setMenuClosed, drawerOpen, setDrawer
               icon={<IconUsers size={20}/>}
             > 
               Usuarios
+            </MenuItem>
+            <MenuItem 
+              active={isActive('/tags')} 
+              onClick={() => {
+                handleClick('/tags')
+                closeDrawer()
+              }} 
+              style={styles.textItem} 
+              icon={<IconTags size={20}/>}
+            > 
+              Tags
+            </MenuItem>
+            <MenuItem 
+              active={isActive('/pedidos')} 
+              onClick={() => {
+                handleClick('/pedidos')
+                closeDrawer()
+              }} 
+              style={styles.textItem} 
+              icon={<IconInbox size={20}/>}
+            > 
+              Pedidos
+            </MenuItem>
+            <MenuItem 
+              active={isActive('/sites')} 
+              onClick={() => {
+                handleClick('/sites')
+                closeDrawer()
+              }} 
+              style={styles.textItem} 
+              icon={<IconWorldWww size={20}/>}
+            > 
+              Sites
             </MenuItem>
           </Menu>
         </Sidebar>

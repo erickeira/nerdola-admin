@@ -49,5 +49,8 @@ export const config = {
     '/obra/:path*',
     '/obras/:path*',
     '/obra/:path*',
+    '/pedidos/:path*',
+    '/sites/:path*',
+    '/site/:path*',
   ],
 }

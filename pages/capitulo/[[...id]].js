@@ -27,6 +27,7 @@ import CustomHead from '@/components/CustomHead';
 import api from '@/utils/api';
 import FotoPicker from '@/components/FotoPicker';
 import { imageUrl } from '@/utils';
+import InputSelect from '@/components/inputs/InputSelect';
 
 export default function Capitulo() {
     const keyName = "Capitulo"
@@ -122,6 +123,35 @@ export default function Capitulo() {
         }
     }
 
+    useEffect(() => {
+      getSites()
+    },[])
+
+    const [sites, setSites] = useState([])
+    const getSites = async (id) => {
+      setLoading(true)
+      try{
+          const response = await api.get(`site`)
+          setSites(response.data)
+      }catch(error){
+
+      } finally {
+          setLoading(false)
+      }
+  }
+
+    const handleAddLink = () => {
+      const links = formulario.links ? [...formulario.links] : [];
+      links.push({
+        site: sites[0]?.id || '',
+        url: '',
+        status: 'ativo'
+      })
+      handleFormChange({ links  })
+    }
+
+    console.log(formulario)
+
     return (
       <>
         <CustomHead
@@ -184,6 +214,18 @@ export default function Capitulo() {
                       mb="15px"
                   />
                 </GridItem>
+                <GridItem w='100%' colSpan={{ base: 4, lg: 2}}>
+                  <InputText
+                    label="Lançado em"
+                    widht="100%"
+                    value={formulario.lancado_em}
+                    isError={!!errors.lancado_em}
+                    errorText={errors.lancado_em}
+                    onChange={(e) => handleFormChange({ lancado_em: e.target.value })}
+                    inputRef={refs.lancado_em}
+                      mb="15px"
+                  />
+                </GridItem>
                 <GridItem w='100%' colSpan={{ base: 4, lg: 4}}>
                   <InputText
                     label="Descrição*"
@@ -197,7 +239,6 @@ export default function Capitulo() {
                     area
                   />
                 </GridItem>
-                
                 <GridItem mt="20px" w='100%' colSpan={{ base: 4, lg: 4}} mb="15px">
                   <Text as="b">IMAGEM:</Text>
                 </GridItem>
@@ -221,6 +262,76 @@ export default function Capitulo() {
                       handleFormChange({ imagem })
                     }}  
                   />
+                </GridItem>
+                <GridItem mt="20px" w='100%' colSpan={{ base: 4, lg: 4}} mb="15px">
+                  <Divider my="30px"/>
+                </GridItem>
+                <GridItem mt="20px" w='100%' colSpan={{ base: 4, lg: 4}} mb="15px">
+                  <Text as="b">Links:</Text>
+                </GridItem>
+                {
+                  formulario.links?.map((link, index) => (
+                    <>
+                      <GridItem w='100%' colSpan={{ base: 4, lg: 4}} mb="10px">
+                        <InputText
+                          label="Url*"
+                          widht="100%"
+                          value={link.url}
+                          onChange={(e) => {
+                            const links = formulario.links ? [...formulario.links] : [];
+                            links[index].url = e.target.value
+                            handleFormChange({ links })
+                          }}
+                          inputRef={refs.descricao}
+                        />
+                      </GridItem>
+                      <GridItem w='100%' colSpan={{ base: 4, lg: 1}}>
+                        <InputSelect
+                            label="Site*"
+                            widht="100%"
+                            value={link.site?.id || link.site}
+                            onChange={(item) => {
+                              const links = formulario.links ? [...formulario.links] : [];
+                              links[index].site = item.value
+                              handleFormChange({ links })
+                            }}
+                            options={sites.map(site => ({
+                              value: site.id,
+                              label: site.nome
+                            }))}
+                            mb="15px"
+                          />
+                      </GridItem>
+                      <GridItem w='100%' colSpan={{ base: 4, lg: 1}}>
+                        <InputSelect
+                            label="Status*"
+                            widht="100%"
+                            value={link.status}
+                            onChange={(item) => {
+                              const links = formulario.links ? [...formulario.links] : [];
+                              links[index].status = item.value
+                              handleFormChange({ links })
+                            }}
+                            options={[
+                              {
+                                value : 'ativo',
+                                label: 'Ativo'
+                              },
+                              {
+                                value : 'inativo',
+                                label: 'Inativo'
+                              }
+                            ]}
+                            mb="15px"
+                          />
+                      </GridItem>
+                    </>
+                  ))
+                }
+                <GridItem w='100%' colSpan={{ base: 4, lg: 4}}>
+                  <Button size="sm" colorScheme="blue" variant="outline" onClick={handleAddLink}>
+                    Adicionar link
+                  </Button>
                 </GridItem>
               </Grid>
             </Box>

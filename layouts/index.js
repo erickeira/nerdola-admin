@@ -17,6 +17,8 @@ const layouts = [
     '/obras','/obra',
     '/capitulos','/capitulo',
     '/agentes','/agente',
+    '/pedidos',
+    '/sites','/site',
   ], comp: DashboardLayout },
   { routes: [], comp: BlankLayout }
 ];
