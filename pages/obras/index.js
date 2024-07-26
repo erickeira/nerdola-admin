@@ -104,6 +104,12 @@ export default function Obras() {
             editable: false
         },
         {
+            field: 'total_usuarios_lendo',
+            headerName: 'Estão lendo',
+            width: 130,
+            editable: false
+        },
+        {
             field: 'status',
             headerName: 'Status',
             editable: false,
