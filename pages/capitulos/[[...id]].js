@@ -242,7 +242,9 @@ export default function Capitulos() {
                         size="sm" 
                         rightIcon={<AddIcon/>}
                         onClick={() => {
-                            navigate(`/${editKey}`)
+                            navigate(`/${editKey}`, {
+                                obra: id
+                            })
                         }}
                         variant="outline"
                         colorScheme="blue"

@@ -121,17 +121,6 @@ export default function SideBar({menuClosed,setMenuClosed, drawerOpen, setDrawer
               Usuarios
             </MenuItem>
             <MenuItem 
-              active={isActive('/tags')} 
-              onClick={() => {
-                handleClick('/tags')
-                closeDrawer()
-              }} 
-              style={styles.textItem} 
-              icon={<IconTags size={20}/>}
-            > 
-              Tags
-            </MenuItem>
-            <MenuItem 
               active={isActive('/pedidos')} 
               onClick={() => {
                 handleClick('/pedidos')

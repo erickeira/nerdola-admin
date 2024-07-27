@@ -18,7 +18,15 @@ import {
   ModalBody,
   ModalCloseButton,
   useDisclosure,
-  Image
+  Image,
+  IconButton,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
+  AlertDialogCloseButton,
 } from '@chakra-ui/react';
 
 import { useRouter } from 'next/router';
@@ -28,6 +36,7 @@ import api from '@/utils/api';
 import FotoPicker from '@/components/FotoPicker';
 import { imageUrl } from '@/utils';
 import InputSelect from '@/components/inputs/InputSelect';
+import { IconTrash } from '@tabler/icons-react';
 
 export default function Capitulo() {
     const keyName = "Capitulo"
@@ -38,8 +47,12 @@ export default function Capitulo() {
     const [ errors, setErrors] = useState({})
     const [ loading, setLoading] = useState(false)
     const router = useRouter()
-    const { id } = router.query;
+    const { id , obra } = router.query;
     const toast = useToast()
+
+    const { isOpen, onOpen, onClose } = useDisclosure()
+    const cancelRef = useRef()
+  
 
     const handleFormChange = (dado) => {
       setErrors({})
@@ -72,14 +85,14 @@ export default function Capitulo() {
       numero : useRef(null),
     }
 
-    const submitHandler = async (event) => {
-      event.preventDefault()
+    const submitHandler = async (notification) => {
+      
       if(!handleValidateForm(formulario) || loading) return 
       setLoading(true)
       try{
         //INSERINDO
         if(id)  await api.patch(`${key}/${id}`, { ...formulario })
-        else  await api.post(`${key}`, { ...formulario })
+        else  await api.post(`${key}`, { ...formulario, obra, notification })
        
         router.back()
         setFormulario({})
@@ -150,8 +163,10 @@ export default function Capitulo() {
       handleFormChange({ links  })
     }
 
-    console.log(formulario)
-
+    const handleRemoveLink = (index) => {
+      const links = formulario.links.filter(( link, i) => i != index)
+      handleFormChange({ links })
+    }
     return (
       <>
         <CustomHead
@@ -163,7 +178,16 @@ export default function Capitulo() {
           w="100%"
           direction="column"
         >
-          <form onSubmit={submitHandler} >
+          <form onSubmit={(event) => {
+              event.preventDefault()
+              if(!id){
+                onOpen()
+              }else{
+                submitHandler()
+              }
+              
+            }} 
+          >
             <Text fontWeight="600" fontSize={20}>{keyName}</Text>
             <Divider my="30px"/>
             <Flex justify="space-between" minWidth="900px" maxWidth="1000px" width="100%" display={"flex"}  mb="25px">
@@ -272,7 +296,7 @@ export default function Capitulo() {
                 {
                   formulario.links?.map((link, index) => (
                     <>
-                      <GridItem w='100%' colSpan={{ base: 4, lg: 4}} mb="10px">
+                      <GridItem w='100%' colSpan={{ base: 4, lg: 4}} mb="10px" display="flex" alignItems="flex-end" gap="10px">
                         <InputText
                           label="Url*"
                           widht="100%"
@@ -283,6 +307,11 @@ export default function Capitulo() {
                             handleFormChange({ links })
                           }}
                           inputRef={refs.descricao}
+                        />
+                         <IconButton
+                          colorScheme={"red"}
+                          icon={<IconTrash size={18} />}
+                          onClick={() => handleRemoveLink(index)}
                         />
                       </GridItem>
                       <GridItem w='100%' colSpan={{ base: 4, lg: 1}}>
@@ -325,6 +354,9 @@ export default function Capitulo() {
                             mb="15px"
                           />
                       </GridItem>
+                      <GridItem w='100%' colSpan={{ base: 4, lg: 2}}>
+                       
+                      </GridItem>
                     </>
                   ))
                 }
@@ -359,6 +391,32 @@ export default function Capitulo() {
             </Flex>
           </form>
         </Flex>
+        <AlertDialog
+        isOpen={isOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+              Notificação
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Deseja notificar os leitoras dessa obra?
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={() => { onClose(); submitHandler(true) }} >
+                Somente cadastrar
+              </Button>
+              <Button colorScheme='green' onClick={() => { onClose(); submitHandler(true) }} ml={3}>
+                Sim, enviar notificação
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
       </>
       
     );
