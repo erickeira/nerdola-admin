@@ -119,7 +119,7 @@ export default function Capitulos() {
             headerName: 'Ações',
             width: 200,
             cellClassName: 'actions',
-            getActions: ({ id }) => {   
+            getActions: ({ id, ...others }) => {   
               return [
                 <IconButton
                     icon={<EditIcon/>}
@@ -258,7 +258,7 @@ export default function Capitulos() {
                     initialState={{
                         pagination: {
                             paginationModel: {
-                            pageSize: 15,
+                            pageSize: 100,
                             },
                         },
                     }}

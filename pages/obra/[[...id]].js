@@ -18,7 +18,8 @@ import {
   ModalBody,
   ModalCloseButton,
   useDisclosure,
-  Image
+  Image,
+  IconButton
 } from '@chakra-ui/react';
 
 import { useRouter } from 'next/router';
@@ -29,6 +30,7 @@ import FotoPicker from '@/components/FotoPicker';
 import InputSelect from '@/components/inputs/InputSelect';
 import api from '@/utils/api';
 import { imageUrl } from '@/utils';
+import { IconTrash } from '@tabler/icons-react';
 
 export default function Obra() {
     const {navigate} = useGlobal()
@@ -170,6 +172,39 @@ export default function Obra() {
         } finally {
         }
     }
+
+    useEffect(() => {
+      getSites()
+    },[])
+
+    const [sites, setSites] = useState([])
+    const getSites = async (id) => {
+      setLoading(true)
+      try{
+          const response = await api.get(`site`)
+          setSites(response.data)
+      }catch(error){
+
+      } finally {
+          setLoading(false)
+      }
+  }
+
+    const handleAddLink = () => {
+      const links = obra.links ? [...obra.links] : [];
+      links.push({
+        site: sites[0]?.id || '',
+        url: '',
+        status: 'ativo'
+      })
+      handleFormChange({ links  })
+    }
+
+    const handleRemoveLink = (index) => {
+      const links = obra.links.filter(( link, i) => i != index)
+      handleFormChange({ links })
+    }
+    
 
     return (
       <>
@@ -322,6 +357,78 @@ export default function Obra() {
                     />
                   </GridItem>
                 }
+                {
+                  obra.links?.map((link, index) => (
+                    <>
+                      <GridItem w='100%' colSpan={{ base: 4, lg: 4}} mb="10px" mt="20px" display="flex" alignItems="flex-end" gap="10px">
+                        <InputText
+                          label="Url*"
+                          widht="100%"
+                          value={link.url}
+                          onChange={(e) => {
+                            const links = obra.links ? [...obra.links] : [];
+                            links[index].url = e.target.value
+                            handleFormChange({ links })
+                          }}
+                          inputRef={refs.descricao}
+                        />
+                         <IconButton
+                          colorScheme={"red"}
+                          icon={<IconTrash size={18} />}
+                          onClick={() => handleRemoveLink(index)}
+                        />
+                      </GridItem>
+                      <GridItem w='100%' colSpan={{ base: 4, lg: 1}}>
+                        <InputSelect
+                            label="Site*"
+                            widht="100%"
+                            value={link.site?.id || link.site}
+                            onChange={(item) => {
+                              const links = obra.links ? [...obra.links] : [];
+                              links[index].site = item.value
+                              handleFormChange({ links })
+                            }}
+                            options={sites.map(site => ({
+                              value: site.id,
+                              label: site.nome
+                            }))}
+                            mb="15px"
+                          />
+                      </GridItem>
+                      <GridItem w='100%' colSpan={{ base: 4, lg: 1}}>
+                        <InputSelect
+                            label="Status*"
+                            widht="100%"
+                            value={link.status}
+                            onChange={(item) => {
+                              const links = obra.links ? [...obra.links] : [];
+                              links[index].status = item.value
+                              handleFormChange({ links })
+                            }}
+                            options={[
+                              {
+                                value : 'ativo',
+                                label: 'Ativo'
+                              },
+                              {
+                                value : 'inativo',
+                                label: 'Inativo'
+                              }
+                            ]}
+                            mb="15px"
+                          />
+                      </GridItem>
+                      <GridItem w='100%' colSpan={{ base: 4, lg: 2}}>
+                       
+                      </GridItem>
+                    </>
+                  ))
+                }
+                <GridItem w='100%' colSpan={{ base: 4, lg: 4}} mt="20px">
+                  <Button size="sm" colorScheme="blue" variant="outline" onClick={handleAddLink}>
+                    Adicionar link
+                  </Button>
+                </GridItem>
                 
               </Grid>
             </Box>

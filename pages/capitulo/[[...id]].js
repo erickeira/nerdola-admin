@@ -93,7 +93,7 @@ export default function Capitulo() {
         //INSERINDO
         if(id)  await api.patch(`${key}/${id}`, { ...formulario })
         else  await api.post(`${key}`, { ...formulario, obra, notification })
-       
+        
         router.back()
         setFormulario({})
         toast({
@@ -167,10 +167,12 @@ export default function Capitulo() {
       const links = formulario.links.filter(( link, i) => i != index)
       handleFormChange({ links })
     }
+    
     return (
       <>
         <CustomHead
           title={"Formulário cadastro"}
+
         />
         <Flex
           align="center"
@@ -188,7 +190,27 @@ export default function Capitulo() {
               
             }} 
           >
-            <Text fontWeight="600" fontSize={20}>{keyName}</Text>
+            <Flex justify="space-between">
+              <Text fontWeight="600" fontSize={20}>{keyName}</Text>
+              {
+                !!formulario?.prox_cap &&
+                <Button
+                  w="150px"
+                  type='submit'
+                  isLoading={loading}
+                  disabled={loading}
+                  colorScheme="blue"
+                  size="sm"
+                  onClick={() => {
+                    navigate(`/capitulo/${formulario?.prox_cap}`)
+                  }}
+                >
+                  Próximo capitulo
+                </Button>
+              }
+             
+            </Flex>
+            
             <Divider my="30px"/>
             <Flex justify="space-between" minWidth="900px" maxWidth="1000px" width="100%" display={"flex"}  mb="25px">
               <Button
