@@ -98,7 +98,6 @@ export default function Obra() {
       setLoading(true)
       try{
         //INSERINDO
-        if(!!obra.uploadimagem) delete obra.imagem
         if(id)  await api.patch(`obras/${id}`, { ...dadosAlterado })
         else  await api.post('obras', { ...obra })
        
