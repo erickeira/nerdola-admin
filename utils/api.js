@@ -2,8 +2,8 @@
 import axios from 'axios';
 import { parseCookies } from 'nookies';
 
-export const apiUrl =  "https://api.nerdola.com.br/" 
-// export const apiUrl =  "http://localhost:3000/" 
+// export const apiUrl =  "https://api.nerdola.com.br/" 
+export const apiUrl =  "http://localhost:3000/" 
 
 const api = axios.create({
     baseURL: apiUrl,

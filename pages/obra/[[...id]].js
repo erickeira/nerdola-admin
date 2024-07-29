@@ -40,6 +40,8 @@ export default function Obra() {
       status: 1
     })
 
+    const [dadosAlterado, setDadosAlterados] = useState({})
+
     const [ errors, setErrors] = useState({})
     const [ loading, setLoading] = useState(false)
     
@@ -58,6 +60,7 @@ export default function Obra() {
     const handleFormChange = (dado) => {
       setErrors({})
       setObra({ ...obra, ...dado });
+      setDadosAlterados({ ...dadosAlterado, ...dado })
     }
     const handleValidateForm = (form) => {
       const newErrors = { 
@@ -96,7 +99,7 @@ export default function Obra() {
       try{
         //INSERINDO
         if(!!obra.uploadimagem) delete obra.imagem
-        if(id)  await api.patch(`obras/${id}`, { ...obra })
+        if(id)  await api.patch(`obras/${id}`, { ...dadosAlterado })
         else  await api.post('obras', { ...obra })
        
         router.back()
