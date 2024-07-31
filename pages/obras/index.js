@@ -112,6 +112,13 @@ export default function Obras() {
             editable: false
         },
         {
+            field: 'links',
+            headerName: 'Num. links',
+            width: 130,
+            editable: false,
+            valueGetter: (links) => links.length
+        },
+        {
             field: 'status',
             headerName: 'Status',
             editable: false,
