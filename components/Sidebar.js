@@ -10,7 +10,8 @@ import {
     IconTags,
     IconUsers,
     IconInbox,
-    IconWorldWww
+    IconWorldWww,
+    IconBooks
 } from '@tabler/icons-react';
 
 import { 
@@ -108,6 +109,17 @@ export default function SideBar({menuClosed,setMenuClosed, drawerOpen, setDrawer
               icon={<IconTags size={20}/>}
             > 
               Tags
+            </MenuItem>
+            <MenuItem 
+              active={isActive('/formatos')} 
+              onClick={() => {
+                handleClick('/formatos')
+                closeDrawer()
+              }} 
+              style={styles.textItem} 
+              icon={<IconBooks size={20}/>}
+            > 
+              Formatos
             </MenuItem>
             <MenuItem 
               active={isActive('/usuarios')} 

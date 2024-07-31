@@ -19,6 +19,7 @@ const layouts = [
     '/agentes','/agente',
     '/pedidos',
     '/sites','/site',
+    '/formatos','/formato',
   ], comp: DashboardLayout },
   { routes: [], comp: BlankLayout }
 ];

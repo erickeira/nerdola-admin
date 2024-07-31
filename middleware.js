@@ -52,5 +52,7 @@ export const config = {
     '/pedidos/:path*',
     '/sites/:path*',
     '/site/:path*',
+    '/formatos/:path*',
+    '/formato/:path*',
   ],
 }

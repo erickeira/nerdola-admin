@@ -37,6 +37,7 @@ export default function Obra() {
     const router = useRouter()
     const { id, pedido, nome } = router.query;
     const [obra, setObra] = useState({
+      formato: 1,
       status: 1
     })
 
@@ -65,7 +66,6 @@ export default function Obra() {
     const handleValidateForm = (form) => {
       const newErrors = { 
           nome:  !form.nome ? "Infome o nome da obra" : false,
-          formato:  !form.formato ? "Infome o formato da obra" : false,
           descricao:  !form.descricao || form.descricao.length < 10 ? "Infome a descrição da obra" : false
       }
       setErrors(newErrors)
@@ -89,7 +89,6 @@ export default function Obra() {
       nome : useRef(null),
       descricao : useRef(null),
       imagem : useRef(null),
-      formato : useRef(null),
     }
 
     const submitHandler = async (event) => {
@@ -133,6 +132,7 @@ export default function Obra() {
     useEffect(() => {
         getTags()
         getStatusList()
+        getFormatos()
     },[])
 
     const getObra = async (id) => {
@@ -142,6 +142,7 @@ export default function Obra() {
             setObra({
               ...response.data,
               tags: response.data.tags?.map(tag => tag.id),
+              formato: response.data.formato?.id,
               status: response.data.status.id
             })
         }catch(error){
@@ -152,7 +153,7 @@ export default function Obra() {
     }
 
     const[ tags, setTags] = useState([])
-    const getTags = async (id) => {
+    const getTags = async () => {
         setLoading(true)
         try{
             const response = await api.get(`tags`)
@@ -164,8 +165,22 @@ export default function Obra() {
         }
     }
 
+    const[ formatos, setFormatos] = useState([])
+    const getFormatos = async () => {
+        setLoading(true)
+        try{
+            const response = await api.get(`formato`)
+            setFormatos(response.data)
+        }catch(error){
+
+        } finally {
+            setLoading(false)
+        }
+    }
+
+
     const[ statusList, setStatusList] = useState([])
-    const getStatusList = async (id) => {
+    const getStatusList = async () => {
         try{
             const response = await api.get(`obra-status`)
             setStatusList(response.data)
@@ -279,15 +294,18 @@ export default function Obra() {
                   />
                 </GridItem>
                 <GridItem w='100%' colSpan={{ base: 4, lg: 1}}>
-                  <InputText
-                    label="Formato*"
-                    placeholder='Mangá, Manhwa ....'
-                    widht="100%"
-                    value={obra.formato}
-                    isError={!!errors.formato}
-                    errorText={errors.formato}
-                    onChange={(e) => handleFormChange({ formato: e.target.value })}
-                    inputRef={refs.formato}
+                  <InputSelect
+                      label="Formato*"
+                      widht="100%"
+                      value={obra.formato}
+                      isError={!!errors.formato}
+                      errorText={errors.formato}
+                      onChange={(e) => handleFormChange({ formato: e.value })}
+                      inputRef={refs.formato}
+                      options={formatos.map((formato) => ({
+                        value : formato.id,
+                        label: formato.nome
+                      }))}
                       mb="15px"
                   />
                 </GridItem>
