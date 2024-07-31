@@ -28,14 +28,25 @@ import {
     MenuOptionGroup,
     MenuDivider,
     Divider,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
+    ModalCloseButton,
+    Spinner,
+    Text,
 } from '@chakra-ui/react';
 import { useGlobal } from '@/context/GlobalContext';
 import { ptBR } from '@/utils/datagrid_ptBr';
-import { AddIcon, DeleteIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
+import { AddIcon, ChevronDownIcon, DeleteIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
 import api from '@/utils/api';
 import { IconListNumbers, IconPhoto , IconCheck , IconX } from '@tabler/icons-react';
 import { imageUrl } from '@/utils';
 import dayjs from 'dayjs'
+import InputSelect from '@/components/inputs/InputSelect';
+import InputText from '@/components/inputs/InputText';
 
 
 export default function Pedidos() {
@@ -43,6 +54,7 @@ export default function Pedidos() {
     const [pedidos, setPedidos] = useState([])
     const [ isLoading, setLoading] = useState(true)
     const { isOpen : isOpenDelete, onOpen : onOpenDelete, onClose: onCloseDelete } = useDisclosure()
+    const { isOpen : isOpenObras, onOpen : onOpenObras, onClose: onCloseObras } = useDisclosure()
     const [ idAction, setIdAction ] = useState(null)
     const cancelRef = useRef()
     const toast = useToast()
@@ -67,6 +79,29 @@ export default function Pedidos() {
             width: 200,
             editable: false,
             valueGetter: (value) => value.nome
+        },
+        {
+            field: 'obra',
+            headerName: 'Obra relacionada',
+            width: 300,
+            editable: false,
+            renderCell: (params) => {
+                if(params.value?.id){
+                    return(
+                        <Button
+                            colorScheme="gray"
+                            size="sm"
+                            onClick={() => {
+                                navigate(`/obra/${row.obra.id}`)
+                            }}
+                        >
+                            {params.value?.nome}
+                        </Button>
+                    )
+                }
+
+                return null
+            }
         },
         {
             field: 'criado_em',
@@ -119,51 +154,59 @@ export default function Pedidos() {
             field: 'actions',
             type: 'actions',
             headerName: 'Ações',
-            width: 250,
+            width: 80,
             cellClassName: 'actions',
             getActions: ({ id, row }) => {   
               if(row.status == 'em_analise'){
                 return [
-                    <IconButton
-                        colorScheme={"green"}
-                        icon={<IconCheck strokeWidth={1.5}/>}
-                        onClick={(e) => {
-                            e.stopPropagation(); 
-                            onEdit(row.id, row.nome)
-                        }}
-                        size="sm"
-                    />,
-                    <IconButton
-                        icon={<IconX/>}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setIdAction(id)
-                            onOpenDelete();
-                        }}
-                        colorScheme="red"
-                        bgColor="red.400"
-                        size="sm"
-                    />
+                    <Menu>
+                        <MenuButton size="md" as={IconButton} icon={<HamburgerIcon />}/>
+                        <MenuList>
+                            <MenuItem
+                                onClick={(e) => {
+                                    e.stopPropagation(); 
+                                    onEdit(row.id, row.nome)
+                                }}
+                                size="sm"
+                                color="green"
+                                height="40px"
+                            >
+                                Criar obra
+                            </MenuItem>
+                            <MenuItem
+                                onClick={(e) => {
+                                    setIdAction(id)
+                                    onOpenObras()
+                                    getObras()
+                                }}
+                                size="sm"
+                                height="40px"
+                            >
+                                Vincular obra
+                            </MenuItem>
+                                
+                            <Divider my="8px"/>
+                            <MenuItem
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIdAction(id)
+                                    onOpenDelete();
+                                }}
+                                color="red.400"
+                                size="sm"
+                                height="40px"
+                            >Reprovar</MenuItem>
+                        </MenuList>
+                    </Menu>
                   ]
-              }else if(row.status == 'publicado' && row.obra.id){
-                return  [
-                    <Button
-                        colorScheme="blue"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                            navigate(`/obra/${row.obra.id}`)
-                        }}
-                    >
-                        Ver obra
-                    </Button>
-                  ]
-              }else{
-                return []
               }
+                return []
+              
             },
         },
     ];
+
+
 
     useEffect(() => {
         getPedidos()
@@ -210,6 +253,43 @@ export default function Pedidos() {
             }
         }
     };
+
+    const [obras, setObras] = useState([])
+    const [string, setString] = useState("")
+    const [isLoadingObras, setIsLoadingObras] = useState(false)
+
+    const getObras = async () => {
+        setIsLoadingObras(true)
+        try{
+            const response = await api.get('obras', {
+                params: {
+                    limite: 15,
+                    string
+                }
+            })
+            
+            setObras(response.data)
+        }catch(error){
+          console.log(error)
+        } finally {
+          setIsLoadingObras(false)
+        }
+    }
+
+
+    const updatePedido = async (obra) => {
+        try{
+            const response = await api.patch(`pedido/${idAction}`, { obra })
+            getPedidos()
+        }catch(error){
+          console.log(error)
+        } finally {
+        }
+    }
+
+    useEffect(() => {
+        getObras()
+    },[string])
 
     return (
         <Flex justify="center" >
@@ -286,6 +366,59 @@ export default function Pedidos() {
                     </AlertDialogContent>
                 </AlertDialogOverlay>
             </AlertDialog>
+            <Modal isOpen={isOpenObras} onClose={onCloseObras}>
+                <ModalOverlay />
+                <ModalContent>
+                <ModalHeader>Obra</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                    <InputText
+                        mb="10px"
+                        label='Pesquisar'
+                        onStopType={(newString) => {
+                            setString(newString)
+                        }}
+                    />
+                    {
+                        isLoadingObras && (
+                            <Flex width="100%" height={300} alignItems="center" justify="center">
+                                <Spinner/>
+                            </Flex>
+                            
+                        )
+                    }
+                    {
+                        !!string && !obras.length && !isLoadingObras && (
+                            <Flex width="100%" height={300} alignItems="center" justify="center">
+                                <Text color="#666" size="14px">
+                                    Obra não encontrada
+                                </Text>
+                            </Flex>
+                        )
+                    }
+                    <Flex flexDirection="column" gap="5px">
+                        {
+                            !isLoadingObras && obras?.map((obra, index) => {
+                                return(
+                                    <Button
+                                        onClick={() => {
+                                            updatePedido(obra.id)
+                                            onCloseObras()
+                                        }}
+                                    >
+                                        {obra.nome}
+                                    </Button>
+                                )
+                            })
+                        }
+                    </Flex>
+                   
+                </ModalBody>
+
+                <ModalFooter>
+                </ModalFooter>
+                </ModalContent>
+            </Modal>
         </Flex>
     );
   }
