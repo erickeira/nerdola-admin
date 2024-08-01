@@ -94,7 +94,10 @@ export default function Obras() {
             headerName: 'Nome ',
             editable: false,
             // flex: 1,
-            width: 400,
+            width: useBreakpointValue({
+                base: 200,
+                lg: 400
+            }),
         },
         {
             field: 'formato',
@@ -214,7 +217,7 @@ export default function Obras() {
     const columns  = useBreakpointValue({
         base: [
             columnsAll[0],
-            columnsAll[6],
+            columnsAll[1],
             columnsAll[7]
         ],
         lg: columnsAll

@@ -26,7 +26,7 @@ export function GlobalProvider({children}){
     const cookies  = parseCookies()
     const [ loading, setLoading ] = useState(true)
     const [ loadingRoute, setLoadingRoute ] = useState(false)
-    const [ user, setUser] = useState({})
+    const [isAuthenticated, setIsAuthenticated] = useState(false)
     const router = useRouter()
     const toast = useToast()
 
@@ -54,7 +54,6 @@ export function GlobalProvider({children}){
       
       }catch(e){
         console.log(e)
-        
       }
     }
 
@@ -64,16 +63,12 @@ export function GlobalProvider({children}){
       return true;
     }
 
-    useEffect(() => {
-      handleGetAgente()
-    },[])
-
     const [agente,  setAgente] = useState({})
     const handleGetAgente = async () => {
       try{
-        const response  = await api.get('agentes/me')
-        console.log(response.data)
-        setAgente(response.data)
+        // const response  = await api.get('agentes/me')
+        // console.log(response.data)
+        // setAgente(response.data)
         return true;
       }catch(error){
         return false
