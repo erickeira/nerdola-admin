@@ -2,8 +2,8 @@ import axios from "axios";
 
 const key_encrypt_login = "nerdola-admin"
 
-const imageUrl = "http://localhost:3001/"
-// const imageUrl = "https://storage.nerdola.com.br/"
+// const imageUrl = "http://localhost:3001/"
+const imageUrl = "https://storage.nerdola.com.br/"
 
 const formatMoney = (value) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value / 100).replace('R$', '');
