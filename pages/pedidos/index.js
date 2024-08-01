@@ -383,7 +383,7 @@ export default function Pedidos() {
                     </AlertDialogContent>
                 </AlertDialogOverlay>
             </AlertDialog>
-            <Modal isOpen={isOpenObras} onClose={onCloseObras}>
+            <Modal isOpen={isOpenObras} size="xl" onClose={onCloseObras}>
                 <ModalOverlay />
                 <ModalContent>
                 <ModalHeader>Obra</ModalHeader>
@@ -423,7 +423,7 @@ export default function Pedidos() {
                                             onCloseObras()
                                         }}
                                     >
-                                        {obra.nome}
+                                        {obra.nome.slice(0, 50)}
                                     </Button>
                                 )
                             })
