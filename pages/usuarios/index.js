@@ -101,7 +101,11 @@ export default function Usuarios() {
 
     const getDados = async () => {
         try{
-            const response = await api.get(`${key}`)
+            const response = await api.get(`${key}`,{
+                params: {
+                    limite: 1000
+                }
+            })
             setLoading(true)
             setObras(response.data)
         }catch(error){
