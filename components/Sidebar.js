@@ -162,10 +162,7 @@ export default function SideBar({menuClosed,setMenuClosed, drawerOpen, setDrawer
 
 const styles = {
     sidebar: {
-      borderRight: "1px solid #d1d1d1",
       height: '100%',
-    //   position: "fixed",
-      overflowY: '',
       zIndex: 5,
     },
     containerLogo:{

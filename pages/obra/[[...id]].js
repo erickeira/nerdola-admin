@@ -237,7 +237,7 @@ export default function Obra() {
           <form onSubmit={submitHandler} >
           <Text fontWeight="600" fontSize={20}>Obra</Text>
           <Divider my="30px"/>
-            <Flex justify="space-between" minWidth="900px" maxWidth="1000px" width="100%" display={"flex"}  mb="25px">
+            <Flex justify="space-between" minWidth={{ base: '200px', lg: "900px"}} maxWidth="1000px" width="100%" display={"flex"}  mb="25px">
               <Button
                   w="150px"
                   onClick={() => {
@@ -441,6 +441,10 @@ export default function Obra() {
                       <GridItem w='100%' colSpan={{ base: 4, lg: 2}}>
                        
                       </GridItem>
+                      <GridItem w='100%' colSpan={{ base: 4, lg: 4}}>
+                        <Divider/>
+                      </GridItem>
+                      
                     </>
                   ))
                 }

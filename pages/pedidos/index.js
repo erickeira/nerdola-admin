@@ -37,6 +37,7 @@ import {
     ModalCloseButton,
     Spinner,
     Text,
+    useBreakpointValue,
 } from '@chakra-ui/react';
 import { useGlobal } from '@/context/GlobalContext';
 import { ptBR } from '@/utils/datagrid_ptBr';
@@ -59,13 +60,15 @@ export default function Pedidos() {
     const cancelRef = useRef()
     const toast = useToast()
 
-    const columns = [
+    const columnsAll = [
         {
             field: 'nome',
             headerName: 'Nome ',
             editable: false,
-            // flex: 1,
-            width: 300,
+            width: useBreakpointValue({
+                base: 200,
+                lg: 300
+            }),
         },
         {
             field: 'onde_ler',
@@ -114,7 +117,10 @@ export default function Pedidos() {
             field: 'status',
             headerName: 'Status',
             editable: false,
-            width: 130,
+            width: useBreakpointValue({
+                base: 60,
+                lg: 130
+            }),
             renderCell: (params) => {
 
                 const statusColor = {
@@ -137,14 +143,16 @@ export default function Pedidos() {
                     >
                         <Tag 
                             h="fit-content" 
-                            px="15px"
+                            px={{base: '0px', lg: '15px'}}
                             colorScheme={statusColor}
                             borderRadius="full"
                             size="sm"
-                            w="100px"
+                            display={{base: '10px', lg: '100px'}}
                             justifyContent="center"
                         >
-                            {statusLabel}
+                            <Text display={{base: 'none', lg: 'block'}}>
+                                {statusLabel}
+                            </Text>
                         </Tag>
                     </Flex>
                 )
@@ -223,6 +231,14 @@ export default function Pedidos() {
         },
     ];
 
+    const columns  = useBreakpointValue({
+        base: [
+            columnsAll[0],
+            columnsAll[5],
+            columnsAll[6]
+        ],
+        lg: columnsAll
+    }) 
 
 
     useEffect(() => {

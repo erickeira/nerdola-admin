@@ -21,43 +21,12 @@ import SideBar from '@/components/Sidebar';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { IconMenu2 } from '@tabler/icons-react';
 export default function DashboardLayout({ children }) {
-  const { navigate, handleLogin, handleLogout } = useGlobal()
+  const { navigate, handleLogin, handleLogout, agente } = useGlobal()
   const [menuClosed, setMenuClosed] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const toast = useToast()
-  
-  useEffect(() => {
-    // checkAuth()
-    setLoading(false)
-  },[])
 
-  const checkAuth = async () => {
-    const cookies = parseCookies()
-    if(cookies.encrypted) {
-      // var bytes  = CryptoJS.AES.decrypt(cookies.encrypted, key_encrypt_login );
-      // var decryptedForm = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-      try{
-        const authenticated = await handleLogin(decryptedForm)
-        if(authenticated) setLoading(false)
-        else{
-          navigate('/login')
-          toast({
-              title: `Falha na autenticação`,
-              status: 'error',
-              isClosable: true,
-          })
-        }
-      }catch(error){
-        console.log(error)
-        navigate('/login')
-      }
-    }else{
-      navigate('/login')
-    }
-  }
-
-  if(loading) return <Progress size='xs' isIndeterminate />
   return (
     <Box>
       <CustomHead/>
@@ -91,11 +60,17 @@ export default function DashboardLayout({ children }) {
               }}
             />
             <Spacer/>
-            <Button
-              onClick={handleLogout}
-            >
-              Sair
-            </Button>
+            <Flex align="center" gap="15px">
+              <Text fontWeight="600">
+                {agente.nome}
+              </Text>
+              <Button
+                onClick={handleLogout}
+              >
+                Sair
+              </Button>
+            </Flex>
+  
           </Flex>
           <Divider mb=""  color={'#fff'}/>
           <Box p="20px">

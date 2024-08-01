@@ -146,7 +146,7 @@ const FotoPicker = ({ imagem, onChange, height, url }) => {
 
     return (
         <>
-        <Flex gap="20px">
+        <Flex gap="20px" flexDirection={{ base: 'column', lg: 'row'}}>
             <Box width={"300px"} height={height || "440px"} bgColor="#f4f4f4" overflow="hidden">
                 {
                     image ? 

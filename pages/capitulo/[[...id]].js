@@ -212,7 +212,7 @@ export default function Capitulo() {
             </Flex>
             
             <Divider my="30px"/>
-            <Flex justify="space-between" minWidth="900px" maxWidth="1000px" width="100%" display={"flex"}  mb="25px">
+            <Flex justify="space-between" minWidth={{ base: '200px', lg: "900px"}} maxWidth="1000px" width="100%" display={"flex"}  mb="25px">
               <Button
                   w="150px"
                   onClick={() => {

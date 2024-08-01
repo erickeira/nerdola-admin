@@ -28,12 +28,17 @@ import {
     MenuOptionGroup,
     MenuDivider,
     Divider,
+    Text,
+    useBreakpointValue,
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
 } from '@chakra-ui/react';
 import { useGlobal } from '@/context/GlobalContext';
 import { ptBR } from '@/utils/datagrid_ptBr';
 import { AddIcon, DeleteIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
 import api from '@/utils/api';
-import { IconListNumbers, IconPhoto , } from '@tabler/icons-react';
+import { IconEdit, IconListNumbers, IconPhoto , } from '@tabler/icons-react';
 import { imageUrl } from '@/utils';
 
 
@@ -46,7 +51,7 @@ export default function Obras() {
     const cancelRef = useRef()
     const toast = useToast()
 
-    const columns = [
+    const columnsAll = [
         {
             field: 'imagem',
             headerName: 'Imagem',
@@ -89,32 +94,32 @@ export default function Obras() {
             headerName: 'Nome ',
             editable: false,
             // flex: 1,
-            width: 300,
+            width: 400,
         },
         {
             field: 'formato',
             headerName: 'Formato',
-            width: 200,
+            width: 160,
             editable: false,
             valueGetter: (formato) => formato.nome
             
         },
         {
             field: 'total_capitulos',
-            headerName: 'Num. capitulos',
-            width: 130,
+            headerName: 'Cap.',
+            width: 80,
             editable: false
         },
         {
             field: 'total_usuarios_lendo',
-            headerName: 'Estão lendo',
-            width: 130,
+            headerName: 'Lendo',
+            width: 80,
             editable: false
         },
         {
             field: 'links',
-            headerName: 'Num. links',
-            width: 130,
+            headerName: 'Links',
+            width: 80,
             editable: false,
             valueGetter: (links) => links.length
         },
@@ -126,7 +131,10 @@ export default function Obras() {
             renderCell: (params) => {
 
                 const statusColor = {
-                    1 : 'green'
+                    1 : 'blue',
+                    2 : 'green',
+                    3 : 'yellow',
+                    4 : 'red'
                 }[params?.value.id]
 
                 return (
@@ -154,38 +162,63 @@ export default function Obras() {
             field: 'actions',
             type: 'actions',
             headerName: 'Ações',
-            width: 200,
+            width: 80,
             cellClassName: 'actions',
             getActions: ({ id }) => {   
               return [
-                <IconButton
-                    icon={<IconListNumbers stroke={1.25} />}
-                    onClick={(e) => {
-                        e.stopPropagation(); 
-                        onCapitulos(id)
-                    }}
-                />,
-                <IconButton
-                    icon={<EditIcon/>}
-                    onClick={(e) => {
-                        e.stopPropagation(); 
-                        onEdit(id)
-                    }}
-                />,
-                <IconButton
-                    icon={<DeleteIcon/>}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        setIdAction(id)
-                        onOpenDelete();
-                    }}
-                    colorScheme="red"
-                    bgColor="red.400"
-                />
+                <Menu>
+                    <MenuButton size="md" as={IconButton} icon={<HamburgerIcon />}/>
+                    <MenuList>
+                        <MenuItem
+                            icon={<IconEdit size={16}/>}
+                            onClick={(e) => {
+                                e.stopPropagation(); 
+                                onEdit(id)
+                            }}
+                            size="sm"
+                            height="40px"
+                        >
+                            Editar
+                        </MenuItem>
+                        <MenuItem
+                            icon={<IconListNumbers stroke={1.25} size={16} />}
+                            onClick={(e) => {
+                                e.stopPropagation(); 
+                                onCapitulos(id)
+                            }}
+                            size="sm"
+                            height="40px"
+                        >
+                            Capitulos
+                        </MenuItem>
+                            
+                        <Divider my="8px"/>
+                        <MenuItem
+                            icon={<DeleteIcon size={16}/>}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIdAction(id)
+                                onOpenDelete();
+                            }}
+                            color="red.400"
+                            size="sm"
+                            height="40px"
+                        >Excluir</MenuItem>
+                    </MenuList>
+                </Menu>,
               ];
             },
         },
     ];
+
+    const columns  = useBreakpointValue({
+        base: [
+            columnsAll[0],
+            columnsAll[6],
+            columnsAll[7]
+        ],
+        lg: columnsAll
+    }) 
 
     useEffect(() => {
         getObras()
@@ -246,6 +279,11 @@ export default function Obras() {
                     }
                 }}    
             >
+                <Breadcrumb>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href='#'>Obras</BreadcrumbLink>
+                    </BreadcrumbItem>
+                </Breadcrumb>
                 <Flex mb="10px">
                     <Spacer/>
                     <Button 
@@ -260,13 +298,14 @@ export default function Obras() {
                         Adicionar
                     </Button>
                 </Flex>
+                <Divider my="30px"/>
                 <DataGrid
                     rows={obras}
                     columns={columns}
                     initialState={{
                     pagination: {
                         paginationModel: {
-                        pageSize: 50,
+                        pageSize: 100,
                         },
                     },
                     }}

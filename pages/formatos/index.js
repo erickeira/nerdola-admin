@@ -32,12 +32,13 @@ import {
     BreadcrumbItem,
     BreadcrumbLink,
     BreadcrumbSeparator,
+    useBreakpointValue,
 } from '@chakra-ui/react';
 import { useGlobal } from '@/context/GlobalContext';
 import { ptBR } from '@/utils/datagrid_ptBr';
 import { AddIcon, DeleteIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
 import api from '@/utils/api';
-import { IconPhoto , } from '@tabler/icons-react';
+import { IconEdit, IconPhoto , } from '@tabler/icons-react';
 
 
 export default function Tags() {
@@ -52,7 +53,7 @@ export default function Tags() {
     const cancelRef = useRef()
     const toast = useToast()
 
-    const columns = [
+    const columnsAll = [
         {
             field: 'id',
             headerName: 'ID',
@@ -73,27 +74,47 @@ export default function Tags() {
             cellClassName: 'actions',
             getActions: ({ id }) => {   
               return [
-                <IconButton
-                    icon={<EditIcon/>}
-                    onClick={(e) => {
-                        e.stopPropagation(); 
-                        onEdit(id)
-                    }}
-                />,
-                <IconButton
-                    icon={<DeleteIcon/>}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        setIdAction(id)
-                        onOpenDelete();
-                    }}
-                    colorScheme="red"
-                    bgColor="red.400"
-                />
+                <Menu>
+                    <MenuButton size="md" as={IconButton} icon={<HamburgerIcon />}/>
+                    <MenuList>
+                        <MenuItem
+                            icon={<IconEdit size={16}/>}
+                            onClick={(e) => {
+                                e.stopPropagation(); 
+                                onEdit(id)
+                            }}
+                            size="sm"
+                            height="40px"
+                        >
+                            Editar
+                        </MenuItem>                            
+                        <Divider my="8px"/>
+                        <MenuItem
+                            icon={<DeleteIcon size={16}/>}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIdAction(id)
+                                onOpenDelete();
+                            }}
+                            color="red.400"
+                            size="sm"
+                            height="40px"
+                        >Excluir</MenuItem>
+                    </MenuList>
+                </Menu>
               ];
             },
         },
     ];
+
+    const columns  = useBreakpointValue({
+        base: [
+            columnsAll[1],
+            columnsAll[2]
+        ],
+        lg: columnsAll
+    }) 
+
 
     useEffect(() => {
         getDados()

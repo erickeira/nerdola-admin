@@ -64,6 +64,22 @@ export function GlobalProvider({children}){
       return true;
     }
 
+    useEffect(() => {
+      handleGetAgente()
+    },[])
+
+    const [agente,  setAgente] = useState({})
+    const handleGetAgente = async () => {
+      try{
+        const response  = await api.get('agentes/me')
+        console.log(response.data)
+        setAgente(response.data)
+        return true;
+      }catch(error){
+        return false
+      }
+    }
+
     const handleLogin = async (form) => {
       try{
         const response  = await api.post('agentes/login', { ...form})
@@ -72,6 +88,7 @@ export function GlobalProvider({children}){
           secure: true,
           sameSite: 'Strict'
         })
+        handleGetAgente()
         return true;
       }catch(error){
         handleLogout()
@@ -86,6 +103,7 @@ export function GlobalProvider({children}){
             handleLogin,
             loading,
             navigate,
+            agente
           }}
         >
           { 
