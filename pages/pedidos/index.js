@@ -200,7 +200,24 @@ export default function Pedidos() {
                     </Menu>
                   ]
               }
-                return []
+            return [
+                <Menu>
+                    <MenuButton size="md" as={IconButton} icon={<HamburgerIcon />}/>
+                    <MenuList>
+                        <MenuItem
+                            onClick={(e) => {
+                                setIdAction(id)
+                                onOpenObras()
+                                getObras()
+                            }}
+                            size="sm"
+                            height="40px"
+                        >
+                            Vincular obra
+                        </MenuItem>
+                    </MenuList>
+                </Menu>
+                ]
               
             },
         },
