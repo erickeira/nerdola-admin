@@ -39,19 +39,27 @@ import { ptBR } from '@/utils/datagrid_ptBr';
 import { AddIcon, DeleteIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
 import api from '@/utils/api';
 import { IconEdit, IconPhoto , } from '@tabler/icons-react';
+import { useRouter } from 'next/router';
 
 
 export default function Sites() {
     const keyName = "Sites"
     const key = "site";
     const editKey = "site";
-    const { navigate } = useGlobal()
+    const { navigate , permissoes } = useGlobal()
     const [dados, setDados] = useState([])
     const [ isLoading, setLoading] = useState(true)
     const { isOpen : isOpenDelete, onOpen : onOpenDelete, onClose: onCloseDelete } = useDisclosure()
     const [ idAction, setIdAction ] = useState(null)
     const cancelRef = useRef()
     const toast = useToast()
+    const router = useRouter()
+
+    useEffect(() => {
+        if(!permissoes?.permSites) {
+            router.back()
+        }
+    },[])
 
     const columnsAll = [
         {

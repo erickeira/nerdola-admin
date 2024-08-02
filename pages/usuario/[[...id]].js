@@ -31,7 +31,7 @@ export default function Usuario() {
     const keyName = "Usuario"
     const key = "usuarios";
     const editKey = "usuario";
-    const {navigate} = useGlobal()
+    const {navigate, permissoes} = useGlobal()
     const [ formulario, setFormulario] = useState({})
     
     const [ errors, setErrors] = useState({})
@@ -39,6 +39,12 @@ export default function Usuario() {
     const router = useRouter()
     const { id } = router.query;
     const toast = useToast()
+
+    useEffect(() => {
+      if(!permissoes?.permTags) {
+          router.back()
+      }
+    },[])
 
     const handleFormChange = (dado) => {
       setErrors({})

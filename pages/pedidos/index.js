@@ -48,10 +48,11 @@ import { imageUrl } from '@/utils';
 import dayjs from 'dayjs'
 import InputSelect from '@/components/inputs/InputSelect';
 import InputText from '@/components/inputs/InputText';
+import { useRouter } from 'next/router';
 
 
 export default function Pedidos() {
-    const { navigate } = useGlobal()
+    const { navigate, permissoes } = useGlobal()
     const [pedidos, setPedidos] = useState([])
     const [ isLoading, setLoading] = useState(true)
     const { isOpen : isOpenDelete, onOpen : onOpenDelete, onClose: onCloseDelete } = useDisclosure()
@@ -59,6 +60,13 @@ export default function Pedidos() {
     const [ idAction, setIdAction ] = useState(null)
     const cancelRef = useRef()
     const toast = useToast()
+    const router = useRouter()
+
+    useEffect(() => {
+        if(!permissoes?.permPedidos) {
+            router.back()
+        }
+    },[])
 
     const columnsAll = [
         {

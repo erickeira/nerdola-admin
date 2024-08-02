@@ -30,13 +30,20 @@ export default function Tag() {
     const keyName = "Tag"
     const key = "tags";
     const editKey = "tag";
-    const {navigate} = useGlobal()
+    const {navigate, permissoes} = useGlobal()
     const [ formulario, setFormulario] = useState({})
     const [ errors, setErrors] = useState({})
     const [ loading, setLoading] = useState(false)
     const router = useRouter()
     const { id } = router.query;
     const toast = useToast()
+
+    useEffect(() => {
+      if(!permissoes?.permTags) {
+          router.back()
+      }
+    },[])
+
 
     const handleFormChange = (dado) => {
       setErrors({})

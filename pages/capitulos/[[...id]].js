@@ -32,12 +32,13 @@ import {
     BreadcrumbItem,
     BreadcrumbLink,
     BreadcrumbSeparator,
+    useBreakpointValue,
 } from '@chakra-ui/react';
 import { useGlobal } from '@/context/GlobalContext';
 import { ptBR } from '@/utils/datagrid_ptBr';
 import { AddIcon, DeleteIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
 import api from '@/utils/api';
-import { IconPhoto , } from '@tabler/icons-react';
+import { IconPhoto , IconEdit } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 import dayjs from 'dayjs';
 import { imageUrl } from '@/utils';
@@ -47,7 +48,7 @@ export default function Capitulos() {
     const keyName = "Capitulos"
     const key = "capitulos";
     const editKey = "capitulo";
-    const { navigate } = useGlobal()
+    const { navigate, permissoes } = useGlobal()
     const [dados, setDados] = useState([])
     const [ isLoading, setLoading] = useState(true)
     const { isOpen : isOpenDelete, onOpen : onOpenDelete, onClose: onCloseDelete } = useDisclosure()
@@ -57,7 +58,14 @@ export default function Capitulos() {
     const router = useRouter()
     const { id } = router.query
 
-    const columns = [
+
+    useEffect(() => {
+        if(!permissoes?.permObras) {
+            router.back()
+        }
+    },[])
+
+    const columnsAll = [
         {
             field: 'imagem',
             headerName: 'Imagem',
@@ -97,7 +105,10 @@ export default function Capitulos() {
         {
             field: 'nome',
             headerName: 'Nome',
-            width: 300,
+            width: useBreakpointValue({
+                base: 140,
+                lg: 300
+            }),
             editable: false,
         },
         {
@@ -117,32 +128,50 @@ export default function Capitulos() {
             field: 'actions',
             type: 'actions',
             headerName: 'Ações',
-            width: 200,
+            width: 100,
             cellClassName: 'actions',
             getActions: ({ id, ...others }) => {   
               return [
-                <IconButton
-                    icon={<EditIcon/>}
-                    onClick={(e) => {
-                        e.stopPropagation(); 
-                        onEdit(id)
-                    }}
-                />,
-                <IconButton
-                    icon={<DeleteIcon/>}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        setIdAction(id)
-                        onOpenDelete();
-                    }}
-                    colorScheme="red"
-                    bgColor="red.400"
-                />
+                <Menu>
+                    <MenuButton size="md" as={IconButton} icon={<HamburgerIcon />}/>
+                    <MenuList>
+                        <MenuItem
+                            icon={<IconEdit size={16}/>}
+                            onClick={(e) => {
+                                e.stopPropagation(); 
+                                onEdit(id)
+                            }}
+                            size="sm"
+                            height="40px"
+                        >
+                            Editar
+                        </MenuItem>
+                        <Divider my="8px"/>
+                        <MenuItem
+                            icon={<DeleteIcon size={16}/>}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIdAction(id)
+                                onOpenDelete();
+                            }}
+                            color="red.400"
+                            size="sm"
+                            height="40px"
+                        >Excluir</MenuItem>
+                    </MenuList>
+                </Menu>
               ];
             },
         },
     ];
 
+    const columns  = useBreakpointValue({
+        base: [
+            columnsAll[1],
+            columnsAll[4]
+        ],
+        lg: columnsAll
+    }) 
 
     const getDados = async (id) => {
         try{

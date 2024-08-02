@@ -42,13 +42,20 @@ export default function Capitulo() {
     const keyName = "Capitulo"
     const key = "capitulos";
 
-    const {navigate} = useGlobal()
+    const {navigate , permissoes} = useGlobal()
     const [ formulario, setFormulario] = useState({})
     const [ errors, setErrors] = useState({})
     const [ loading, setLoading] = useState(false)
     const router = useRouter()
     const { id , obra } = router.query;
     const toast = useToast()
+
+    useEffect(() => {
+      if(!permissoes?.permObras) {
+          router.back()
+      }
+    },[])
+
 
     const { isOpen, onOpen, onClose } = useDisclosure()
     const cancelRef = useRef()

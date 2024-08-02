@@ -33,13 +33,20 @@ export default function Site() {
     const keyName = "Site"
     const key = "site";
     const editKey = "tag";
-    const {navigate} = useGlobal()
+    const {navigate, permissoes} = useGlobal()
     const [ formulario, setFormulario] = useState({})
     const [ errors, setErrors] = useState({})
     const [ loading, setLoading] = useState(false)
     const router = useRouter()
     const { id } = router.query;
     const toast = useToast()
+
+    useEffect(() => {
+      if(!permissoes?.permSites) {
+          router.back()
+      }
+    },[])
+
 
     const handleFormChange = (dado) => {
       setErrors({})

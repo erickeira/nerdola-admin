@@ -45,13 +45,20 @@ export default function Tags() {
     const keyName = "Tags"
     const key = "tags";
     const editKey = "tag";
-    const { navigate } = useGlobal()
+    const { navigate, permissoes } = useGlobal()
     const [dados, setDados] = useState([])
     const [ isLoading, setLoading] = useState(true)
     const { isOpen : isOpenDelete, onOpen : onOpenDelete, onClose: onCloseDelete } = useDisclosure()
     const [ idAction, setIdAction ] = useState(null)
     const cancelRef = useRef()
     const toast = useToast()
+    const router = useRouter()
+
+    useEffect(() => {
+        if(!permissoes?.permTags) {
+            router.back()
+        }
+    },[])
 
     const columnsAll = [
         {

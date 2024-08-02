@@ -40,16 +40,25 @@ import { AddIcon, DeleteIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
 import api from '@/utils/api';
 import { IconEdit, IconListNumbers, IconPhoto , } from '@tabler/icons-react';
 import { imageUrl } from '@/utils';
+import { useRouter } from 'next/router';
 
 
 export default function Obras() {
-    const { navigate } = useGlobal()
+    const { navigate , permissoes } = useGlobal()
     const [obras, setObras] = useState([])
     const [ isLoading, setLoading] = useState(true)
     const { isOpen : isOpenDelete, onOpen : onOpenDelete, onClose: onCloseDelete } = useDisclosure()
     const [ idAction, setIdAction ] = useState(null)
     const cancelRef = useRef()
     const toast = useToast()
+   
+
+    const router = useRouter()
+    useEffect(() => {
+        if(!permissoes?.permObras) {
+            router.back()
+        }
+    },[])
 
     const columnsAll = [
         {
@@ -229,7 +238,7 @@ export default function Obras() {
         base: [
             columnsAll[0],
             columnsAll[1],
-            columnsAll[7]
+            columnsAll[8]
         ],
         lg: columnsAll
     }) 
