@@ -22,8 +22,8 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { IconMenu2 } from '@tabler/icons-react';
 export default function DashboardLayout({ children }) {
   const { navigate, handleLogin, handleLogout, agente } = useGlobal()
-  const [menuClosed, setMenuClosed] = useState(false)
-  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [ menuClosed, setMenuClosed] = useState(false)
+  const [ drawerOpen, setDrawerOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const toast = useToast()
 

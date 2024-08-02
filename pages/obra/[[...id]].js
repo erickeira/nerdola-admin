@@ -38,7 +38,11 @@ export default function Obra() {
     const { id, pedido, nome } = router.query;
     const [obra, setObra] = useState({
       formato: 1,
-      status: 1
+      status: 1,
+      atualizacao : {
+        agente : "1",
+        frequencia : "semanal"
+      }
     })
 
     const [dadosAlterado, setDadosAlterados] = useState({})
@@ -140,10 +144,15 @@ export default function Obra() {
         try{
             const response = await api.get(`obras/${id}`)
             setObra({
+              ...obra,
               ...response.data,
               tags: response.data.tags?.map(tag => tag.id),
               formato: response.data.formato?.id,
-              status: response.data.status.id
+              status: response.data.status.id,
+              atualizacao: {
+                ...response.data?.atualizacoes,
+                agente: response.data?.agente?.id
+              }
             })
         }catch(error){
 
@@ -151,6 +160,8 @@ export default function Obra() {
             setLoading(false)
         }
     }
+
+    console.log(obra)
 
     const[ tags, setTags] = useState([])
     const getTags = async () => {
@@ -223,6 +234,22 @@ export default function Obra() {
     }
     
 
+    const[ agentes, setAgentes] = useState([])
+    const getAgentes = async () => {
+        try{
+            const response = await api.get(`agentes`)
+            setAgentes(response.data)
+        }catch(error){
+
+        } finally {
+        }
+    }
+
+    useEffect(() => {
+      getAgentes()
+    },[])
+
+
     return (
       <>
         <CustomHead
@@ -261,6 +288,9 @@ export default function Obra() {
             </Flex>
             <Box boxShadow='base' maxWidth="1000px" w="100%" py="30px" px={{base: "15px", lg: "30px"}} bgColor="#fff" borderRadius="md">
               <Grid templateColumns={{ base: 'repeat(1, 1fr)',lg: 'repeat(4, 1fr)' }} gap="5px" mb={3}>
+                <GridItem mt="20px" w='100%' colSpan={{ base: 4, lg: 4}} mb="15px">
+                  <Text as="b">Dados da obra:</Text>
+                </GridItem>
                 <GridItem w='100%' colSpan={{ base: 4, lg: 4}}>
                   <InputText
                     label="Nome obra*"
@@ -338,9 +368,113 @@ export default function Obra() {
                     area
                   />
                 </GridItem>
-                
+                <GridItem w='100%' colSpan={{ base: 4, lg: 4}} my="40px">
+                  <Divider/>
+                </GridItem>
                 <GridItem mt="20px" w='100%' colSpan={{ base: 4, lg: 4}} mb="15px">
-                  <Text as="b">IMAGEM:</Text>
+                  <Text as="b">Atualização:</Text>
+                </GridItem>
+                <GridItem w='100%' colSpan={{ base: 4, lg: 2}}>
+                  <InputSelect
+                      label="Frequencia*"
+                      widht="100%"
+                      value={obra.atualizacao?.frequencia}
+                      isError={!!errors.atualizacao}
+                      errorText={errors.atualizacao}
+                      onChange={(e) => {
+                        const atualizacao = {
+                          ...obra.atualizacao,
+                          frequencia :  e.value
+                        }
+                        handleFormChange({ atualizacao })
+                      }}
+                      inputRef={refs.atualizacao}
+                      options={[
+                        { value : "semanal" , label: "Semanal" },
+                        { value : "bisemanal" , label: "Bi semanal" },
+                        { value : "mensal" , label: "Mensal"},
+                      ]}
+                      mb="15px"
+                  />
+                </GridItem>
+                <GridItem w='100%' colSpan={{ base: 4, lg: 2}}>
+                  <InputSelect
+                      label="Dia da semana*"
+                      widht="100%"
+                      value={obra.atualizacao?.dia_semana}
+                      isError={!!errors.atualizacao}
+                      errorText={errors.atualizacao}
+                      onChange={(e) => {
+                        const atualizacao = {
+                          ...obra.atualizacao,
+                          dia_semana :  e.value
+                        }
+                        handleFormChange({ atualizacao })
+                      }}
+                      inputRef={refs.atualizacao}
+                      options={[
+                        { value : null , label: "Nenhum" },
+                        { value : "segunda" , label: "Segunda" },
+                        { value : "terca" , label: "Terça" },
+                        { value : "quarta" , label: "Quarta"},
+                        { value : "quinta" , label: "Quinta"},
+                        { value : "sexta" , label: "Sexta"},
+                        { value : "sabado" , label: "Sábado"},
+                        { value : "domingo" , label: "Domingo"},
+                      ]}
+                      mb="15px"
+                  />
+                </GridItem>
+                
+                <GridItem w='100%' colSpan={{ base: 4, lg: 2}}>
+                  <InputSelect
+                      label="Responsável por atualizar*"
+                      widht="100%"
+                      value={obra.atualizacao?.agente}
+                      isError={!!errors.atualizacao}
+                      errorText={errors.atualizacao}
+                      onChange={(e) => {
+                        const atualizacao = {
+                          ...obra.atualizacao,
+                          agente :  e.value
+                        }
+                        handleFormChange({ atualizacao })
+                      }}
+                      inputRef={refs.atualizacao}
+                      options={agentes.map((agente) => ({
+                        value : agente.id,
+                        label: agente.nome
+                      }))}
+                      mb="15px"
+                  />
+                </GridItem>
+                <GridItem w='100%' colSpan={{ base: 4, lg: 2}}>
+                  <InputSelect
+                      label="Status*"
+                      widht="100%"
+                      value={obra.atualizacao?.status}
+                      isError={!!errors.atualizacao}
+                      errorText={errors.atualizacao}
+                      onChange={(e) => {
+                        const atualizacao = {
+                          ...obra.atualizacao,
+                          status :  e.value
+                        }
+                        handleFormChange({ atualizacao })
+                      }}
+                      inputRef={refs.atualizacao}
+                      options={[
+                        { value : "desatualizado" , label: "Desatualizada" },
+                        { value : "atualizado" , label: "Atualizado" },
+                      ]}
+                      mb="15px"
+                  />
+                </GridItem>
+                <GridItem w='100%' colSpan={{ base: 4, lg: 4}} my="40px">
+                  <Divider/>
+                </GridItem>
+                <GridItem mt="20px" w='100%' colSpan={{ base: 4, lg: 4}} mb="15px">
+                  <Text as="b">Imagem:</Text>
                 </GridItem>
                 <GridItem w='100%' colSpan={{ base: 4, lg: 4}}>
                   <InputText
@@ -377,8 +511,14 @@ export default function Obra() {
                     />
                   </GridItem>
                 }
+                <GridItem w='100%' colSpan={{ base: 4, lg: 4}} my="40px">
+                  <Divider/>
+                </GridItem>
+                <GridItem mt="20px" w='100%' colSpan={{ base: 4, lg: 4}} mb="15px">
+                  <Text as="b">Links:</Text>
+                </GridItem>
                 {
-                  obra.links?.map((link, index) => (
+                  obra.links?.length ? obra.links?.map((link, index) => (
                     <>
                       <GridItem w='100%' colSpan={{ base: 4, lg: 4}} mb="10px" mt="20px" display="flex" alignItems="flex-end" gap="10px">
                         <InputText
@@ -446,7 +586,11 @@ export default function Obra() {
                       </GridItem>
                       
                     </>
-                  ))
+                  )) : (
+                    <GridItem mt="20px" w='100%' colSpan={{ base: 4, lg: 4}} mb="10px">
+                      <Text color="#666" fontSize="14px">Nenhum link adicionado</Text>
+                    </GridItem>
+                  )
                 }
                 <GridItem w='100%' colSpan={{ base: 4, lg: 4}} mt="20px">
                   <Button size="sm" colorScheme="blue" variant="outline" onClick={handleAddLink}>

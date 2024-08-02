@@ -11,7 +11,9 @@ import {
     IconUsers,
     IconInbox,
     IconWorldWww,
-    IconBooks
+    IconBooks,
+    IconBookOff,
+    IconUserShield
 } from '@tabler/icons-react';
 
 import { 
@@ -27,7 +29,7 @@ import { useGlobal } from "@/context/GlobalContext";
 
 export default function SideBar({menuClosed,setMenuClosed, drawerOpen, setDrawerOpen}){
     const router = useRouter()
-    const { navigate } = useGlobal()
+    const { navigate, permissoes } = useGlobal()
     const handleClick = (rota) => {
       navigate(rota)
     }
@@ -38,6 +40,9 @@ export default function SideBar({menuClosed,setMenuClosed, drawerOpen, setDrawer
     const closeDrawer = () => {
       setDrawerOpen(false)
     }
+
+    
+    
     
     return(
       <Box borderRight="1px solid #d1d1d1">
@@ -77,83 +82,128 @@ export default function SideBar({menuClosed,setMenuClosed, drawerOpen, setDrawer
             }}
             closeOnClick={true}
           >
-            <MenuItem 
-              active={isActive('/obras')} 
-              onClick={() => {
-                handleClick('/obras')
-                closeDrawer()
-              }} 
-              style={styles.textItem} 
-              icon={<IconBook size={20}/>}
-            > 
-              Obras
-            </MenuItem>
-            <MenuItem 
-              active={isActive('/obras-status')} 
-              onClick={() => {
-                handleClick('/obras-status')
-                closeDrawer()
-              }} 
-              style={styles.textItem} 
-              icon={<IconCheck size={20}/>}
-            > 
-              Obra Status
-            </MenuItem>
-            <MenuItem 
-              active={isActive('/tags')} 
-              onClick={() => {
-                handleClick('/tags')
-                closeDrawer()
-              }} 
-              style={styles.textItem} 
-              icon={<IconTags size={20}/>}
-            > 
-              Tags
-            </MenuItem>
-            <MenuItem 
-              active={isActive('/formatos')} 
-              onClick={() => {
-                handleClick('/formatos')
-                closeDrawer()
-              }} 
-              style={styles.textItem} 
-              icon={<IconBooks size={20}/>}
-            > 
-              Formatos
-            </MenuItem>
-            <MenuItem 
-              active={isActive('/usuarios')} 
-              onClick={() => {
-                handleClick('/usuarios')
-                closeDrawer()
-              }} 
-              style={styles.textItem} 
-              icon={<IconUsers size={20}/>}
-            > 
-              Usuarios
-            </MenuItem>
-            <MenuItem 
-              active={isActive('/pedidos')} 
-              onClick={() => {
-                handleClick('/pedidos')
-                closeDrawer()
-              }} 
-              style={styles.textItem} 
-              icon={<IconInbox size={20}/>}
-            > 
-              Pedidos
-            </MenuItem>
-            <MenuItem 
-              active={isActive('/sites')} 
-              onClick={() => {
-                handleClick('/sites')
-                closeDrawer()
-              }} 
-              style={styles.textItem} 
-              icon={<IconWorldWww size={20}/>}
-            > 
-              Sites
-            </MenuItem>
+            {
+              permissoes.permObras && 
+              <>
+                <MenuItem 
+                  active={isActive('/obras')} 
+                  onClick={() => {
+                    handleClick('/obras')
+                    closeDrawer()
+                  }} 
+                  style={styles.textItem} 
+                  icon={<IconBook size={20}/>}
+                > 
+                  Obras
+                </MenuItem>
+              
+              <MenuItem 
+                active={isActive('/obras-desatualizadas')} 
+                onClick={() => {
+                  handleClick('/obras-desatualizadas')
+                  closeDrawer()
+                }} 
+                style={styles.textItem} 
+                icon={<IconBookOff size={20}/>}
+              > 
+                Obras desatualizadas
+              </MenuItem>
+              
+              <MenuItem 
+                active={isActive('/obras-status')} 
+                onClick={() => {
+                  handleClick('/obras-status')
+                  closeDrawer()
+                }} 
+                style={styles.textItem} 
+                icon={<IconCheck size={20}/>}
+              > 
+                Obra Status
+              </MenuItem>
+              <MenuItem 
+                active={isActive('/formatos')} 
+                onClick={() => {
+                  handleClick('/formatos')
+                  closeDrawer()
+                }} 
+                style={styles.textItem} 
+                icon={<IconBooks size={20}/>}
+              > 
+                Formatos
+              </MenuItem>
+              </>
+            }
+            {
+              permissoes.permTags && 
+              <MenuItem 
+                active={isActive('/tags')} 
+                onClick={() => {
+                  handleClick('/tags')
+                  closeDrawer()
+                }} 
+                style={styles.textItem} 
+                icon={<IconTags size={20}/>}
+              > 
+                Tags
+              </MenuItem>
+            }
+            
+            {
+              permissoes.permUsuarios && 
+              <MenuItem 
+                active={isActive('/usuarios')} 
+                onClick={() => {
+                  handleClick('/usuarios')
+                  closeDrawer()
+                }} 
+                style={styles.textItem} 
+                icon={<IconUsers size={20}/>}
+              > 
+                Usuarios
+              </MenuItem>
+            }
+            {
+              permissoes.permPedidos && 
+              <MenuItem 
+                active={isActive('/pedidos')} 
+                onClick={() => {
+                  handleClick('/pedidos')
+                  closeDrawer()
+                }} 
+                style={styles.textItem} 
+                icon={<IconInbox size={20}/>}
+              > 
+                Pedidos
+              </MenuItem>
+            }
+            {
+              permissoes.permSites && 
+              <MenuItem 
+                active={isActive('/sites')} 
+                onClick={() => {
+                  handleClick('/sites')
+                  closeDrawer()
+                }} 
+                style={styles.textItem} 
+                icon={<IconWorldWww size={20}/>}
+              > 
+                Sites
+              </MenuItem>
+            }
+             {
+              permissoes.permAgentes && 
+              <MenuItem 
+                active={isActive('/agentes')} 
+                onClick={() => {
+                  handleClick('/agentes')
+                  closeDrawer()
+                }} 
+                style={styles.textItem} 
+                icon={<IconUserShield size={20}/>}
+              > 
+                Agentes
+              </MenuItem>
+            }
           </Menu>
         </Sidebar>
       </Box>

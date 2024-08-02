@@ -26,9 +26,40 @@ export function GlobalProvider({children}){
     const cookies  = parseCookies()
     const [ loading, setLoading ] = useState(true)
     const [ loadingRoute, setLoadingRoute ] = useState(false)
+    const [ isLoadingCheckAuth, setLoadingCheckAuth] = useState(true)
     const [isAuthenticated, setIsAuthenticated] = useState(false)
     const router = useRouter()
     const toast = useToast()
+    const [agente,  setAgente] = useState({})
+
+
+    const isAdmin = agente.permissoes?.some(perm => perm.id == 1)
+
+    const permissoes = {
+      permObras: agente.permissoes?.some(perm => perm.id == 2) || isAdmin,
+      permSites: agente.permissoes?.some(perm => perm.id == 3) || isAdmin,
+      permTags: agente.permissoes?.some(perm => perm.id == 4) || isAdmin,
+      permUsuarios: agente.permissoes?.some(perm => perm.id == 5) || isAdmin,
+      permPedidos: agente.permissoes?.some(perm => perm.id == 6) || isAdmin,
+      permAgentes: agente.permissoes?.some(perm => perm.id == 7) || isAdmin,
+    }
+
+    const handleCheckAuth = async () => {
+      setLoadingCheckAuth(true)
+      try{
+          const response = await api.get('agentes/me')
+          // navigation.navigate('tabs')
+          setAgente(response.data)
+          setIsAuthenticated(true)
+      }catch(error){
+      } finally {
+          setLoadingCheckAuth(false)
+      }
+    }  
+
+    useEffect(() => {
+        handleCheckAuth()
+    },[])
 
     useEffect(() => {
       setLoadingRoute(false)
@@ -59,20 +90,8 @@ export function GlobalProvider({children}){
 
     const handleLogout = async () => {
       destroyCookie(null, 'encrypted')
-      await router.push('/login')
+      // await router.push('/login')
       return true;
-    }
-
-    const [agente,  setAgente] = useState({})
-    const handleGetAgente = async () => {
-      try{
-        // const response  = await api.get('agentes/me')
-        // console.log(response.data)
-        // setAgente(response.data)
-        return true;
-      }catch(error){
-        return false
-      }
     }
 
     const handleLogin = async (form) => {
@@ -83,7 +102,7 @@ export function GlobalProvider({children}){
           secure: true,
           sameSite: 'Strict'
         })
-        handleGetAgente()
+        handleCheckAuth()
         return true;
       }catch(error){
         handleLogout()
@@ -98,7 +117,8 @@ export function GlobalProvider({children}){
             handleLogin,
             loading,
             navigate,
-            agente
+            agente,
+            permissoes
           }}
         >
           { 

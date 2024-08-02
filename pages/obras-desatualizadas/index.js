@@ -108,65 +108,56 @@ export default function Obras() {
             
         },
         {
-            field: 'atualizacoes',
-            headerName: 'Atualização',
-            width: 160,
-            editable: false,
-            valueGetter: (atualizacoes) => ({
-                semanal : "Semanal",
-                mensal: "Mensal",
-                bisemanal: "Bi semanal"
-            }[atualizacoes.frequencia])
-        },
-        {
             field: 'total_capitulos',
             headerName: 'Cap.',
             width: 80,
             editable: false
         },
         {
-            field: 'total_usuarios_lendo',
-            headerName: 'Lendo',
-            width: 80,
-            editable: false
-        },
-        {
-            field: 'links',
-            headerName: 'Links',
-            width: 80,
+            field: 'agente',
+            headerName: 'Reponsável',
+            width: 200,
             editable: false,
-            valueGetter: (links) => links.length
+            valueGetter: (agente) => agente?.nome
         },
         {
-            field: 'status',
+            field: 'atualizacoes',
+            headerName: 'Dia da semana',
+            width: 160,
+            editable: false,
+            valueGetter: (atualizacoes) => ({
+                segunda : "Segunda",
+                terca: "Terça",
+                quarta: "Quarta",
+                quinta: "Quinta",
+                sexta: "Sexta",
+                sabado: "Sabado",
+                domingo: "Domingo",
+            }[atualizacoes.dia_semana])
+        },
+        {
+            field: 'atualizacoes2',
             headerName: 'Status',
+            width: 110,
             editable: false,
-            width: 130,
             renderCell: (params) => {
-
-                const statusColor = {
-                    1 : 'blue',
-                    2 : 'green',
-                    3 : 'yellow',
-                    4 : 'red'
-                }[params?.value.id]
-
                 return (
                     <Flex
                         height="100%"
                         align="center"
                         justify="center"
+                        gap="5px"
                     >
                         <Tag 
                             h="fit-content" 
                             px="15px"
-                            colorScheme={statusColor}
+                            colorScheme={"yellow"}
                             borderRadius="full"
                             size="sm"
                             w="100px"
                             justifyContent="center"
                         >
-                            {params?.value?.nome}
+                            Desatualizada
                         </Tag>
                     </Flex>
                 )
@@ -205,19 +196,6 @@ export default function Obras() {
                         >
                             Capitulos
                         </MenuItem>
-                            
-                        <Divider my="8px"/>
-                        <MenuItem
-                            icon={<DeleteIcon size={16}/>}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setIdAction(id)
-                                onOpenDelete();
-                            }}
-                            color="red.400"
-                            size="sm"
-                            height="40px"
-                        >Excluir</MenuItem>
                     </MenuList>
                 </Menu>,
               ];
@@ -229,7 +207,7 @@ export default function Obras() {
         base: [
             columnsAll[0],
             columnsAll[1],
-            columnsAll[7]
+            columnsAll[6]
         ],
         lg: columnsAll
     }) 
@@ -242,7 +220,8 @@ export default function Obras() {
         try{
             const response = await api.get('obras', {
                 params: {
-                    limite: 500
+                    limite: 500,
+                    statusatualizacao : 'desatualizado'
                 }
             })
             setLoading(true)
@@ -295,7 +274,7 @@ export default function Obras() {
             >
                 <Breadcrumb>
                     <BreadcrumbItem>
-                        <BreadcrumbLink href='#'>Obras</BreadcrumbLink>
+                        <BreadcrumbLink href='#'>Obras desatualizadas</BreadcrumbLink>
                     </BreadcrumbItem>
                 </Breadcrumb>
                 <Flex mb="10px">

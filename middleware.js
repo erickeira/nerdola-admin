@@ -9,20 +9,20 @@ export async function middleware(request) {
     const auth_token = request.cookies.get('authToken')?.value
     const connectingIP = request.headers.get('CF-Connecting-IP');
 
-    const response = await fetch(`${apiUrl}/usuarios`, {
-      headers: {
-        Authorization: `Bearer ${auth_token}`,
-        'X-Forwarded-For': connectingIP,
-        'User-Agent': `${request?.headers?.get('user-agent')} ${request.cookies.get('authToken')?.value}`
-      }
-    })
+    // const response = await fetch(`${apiUrl}/agente/me`, {
+    //   headers: {
+    //     Authorization: `Bearer ${auth_token}`,
+    //     'X-Forwarded-For': connectingIP,
+    //     'User-Agent': `${request?.headers?.get('user-agent')} ${request.cookies.get('authToken')?.value}`
+    //   }
+    // })
 
-    if (response.status === 401) {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
-    if (response.status === 500) {
-      return NextResponse.redirect(new URL('/500', request.url))
-    }
+    // if (response.status === 401) {
+    //   return NextResponse.redirect(new URL('/login', request.url))
+    // }
+    // if (response.status === 500) {
+    //   return NextResponse.redirect(new URL('/500', request.url))
+    // }
 
     if(request.nextUrl.pathname == '/'){
       return NextResponse.redirect(new URL('/obras', request.url))

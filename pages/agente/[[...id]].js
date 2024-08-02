@@ -27,13 +27,13 @@ import CustomHead from '@/components/CustomHead';
 import api from '@/utils/api';
 import InputSelect from '@/components/inputs/InputSelect';
 
-export default function Usuario() {
-    const keyName = "Usuario"
-    const key = "usuarios";
-    const editKey = "usuario";
+export default function Agente() {
+    const keyName = "Agente"
+    const key = "agentes";
+    const editKey = "agente";
     const {navigate} = useGlobal()
     const [ formulario, setFormulario] = useState({})
-    
+    const [dadosAlterados, setDadosAlterados] = useState({})
     const [ errors, setErrors] = useState({})
     const [ loading, setLoading] = useState(false)
     const router = useRouter()
@@ -43,12 +43,13 @@ export default function Usuario() {
     const handleFormChange = (dado) => {
       setErrors({})
       setFormulario({ ...formulario, ...dado });
+      setDadosAlterados({ ...dadosAlterados, ...dado });
     }
     const handleValidateForm = (form) => {
       const newErrors = { 
           nome:  !form.nome ? "Infome o nome" : false,
-          email:  !form.email ? "Infome o e-mail" : false,
-          telefone:  !form.telefone ? "Infome o telefone" : false
+          login:  !form.login ? "Infome o e-mail" : false,
+          permissoes:  !form.permissoes ? "Infome as permissões" : false
       }
       setErrors(newErrors)
 
@@ -69,8 +70,8 @@ export default function Usuario() {
 
     const refs = {
       nome : useRef(null),
-      email : useRef(null),
-      telefone : useRef(null),
+      login : useRef(null),
+      permissoes : useRef(null),
     }
 
     const submitHandler = async (event) => {
@@ -79,7 +80,7 @@ export default function Usuario() {
       setLoading(true)
       try{
         //INSERINDO
-        if(id)  await api.patch(`${key}/${id}`, { ...formulario })
+        if(id)  await api.patch(`${key}/${id}`, { ...dadosAlterados })
         else  await api.post(`${key}`, { ...formulario })
        
         router.back()
@@ -108,21 +109,42 @@ export default function Usuario() {
 
 
     useEffect(() => {
-       if(id) getTag(id)
+       if(id) getDados(id)
     },[id])
 
 
-    const getTag = async (id) => {
+    const getDados = async (id) => {
         setLoading(true)
         try{
             const response = await api.get(`${key}/${id}`)
-            setFormulario(response.data)
+            console.log(response.data)
+            setFormulario({
+                ...response.data,
+                permissoes: response.data.permissoes?.map(perm => perm.id),
+            })
         }catch(error){
 
         } finally {
             setLoading(false)
         }
     }
+
+    const[ permissoes, setPermissoes] = useState([])
+    const getPermissoes = async () => {
+        try{
+            const response = await api.get(`permissoes`)
+            setPermissoes(response.data)
+        }catch(error){
+
+        } finally {
+        }
+    }
+
+    useEffect(() => {
+        getPermissoes()
+    },[])
+
+
 
     return (
       <>
@@ -162,24 +184,6 @@ export default function Usuario() {
             </Flex>
             <Box boxShadow='base' maxWidth="1000px" w="100%" py="30px" px={{base: "15px", lg: "30px"}} bgColor="#fff" borderRadius="md">
               <Grid templateColumns={{ base: 'repeat(1, 1fr)',lg: 'repeat(4, 1fr)' }} gap="5px" mb={3}>
-                <GridItem w='100%' colSpan={{ base: 4, lg: 1}}>
-                  <InputSelect
-                      label="Status*"
-                      widht="100%"
-                      value={formulario.status}
-                      isError={!!errors.status}
-                      errorText={errors.status}
-                      onChange={(e) => handleFormChange({ status: e.value })}
-                      inputRef={refs.status}
-                      options={[
-                        { value : 'ativo', label: 'Ativo'},
-                        { value : 'inativo', label: 'Inativo'},
-                        { value : 'banido', label: 'Banido'},
-                        { value : 'bloqueado', label: 'Bloqueado'},
-                      ]}
-                      mb="15px"
-                  />
-                </GridItem>
                 <GridItem w='100%' colSpan={{ base: 4, lg: 4}}>
                   <InputText
                     label="Nome*"
@@ -194,41 +198,46 @@ export default function Usuario() {
                 </GridItem>
                 <GridItem w='100%' colSpan={{ base: 4, lg: 4}}>
                   <InputText
-                    label="Email*"
+                    label="Login*"
                     widht="100%"
-                    value={formulario.email}
-                    isError={!!errors.email}
-                    errorText={errors.email}
-                    onChange={(e) => handleFormChange({ email: e.target.value })}
-                    inputRef={refs.email}
+                    value={formulario.login}
+                    isError={!!errors.login}
+                    errorText={errors.login}
+                    onChange={(e) => handleFormChange({ login: e.target.value })}
+                    inputRef={refs.login}
                       mb="15px"
                   />
                 </GridItem>
-                <GridItem w='100%' colSpan={{ base: 4, lg: 1}}>
-                  <InputText
-                    label="Telefone*"
-                    widht="100%"
-                    value={formulario.telefone}
-                    isError={!!errors.telefone}
-                    errorText={errors.telefone}
-                    onChange={(e) => handleFormChange({ telefone: e.target.value })}
-                    inputRef={refs.telefone}
-                    mb="15px"
-                    type='phone'
+                <GridItem w='100%' colSpan={{ base: 4, lg: 4}}>
+                  <InputSelect
+                      label="Permissões*"
+                      widht="100%"
+                      value={formulario.permissoes}
+                      isError={!!errors.permissoes}
+                      errorText={errors.permissoes}
+                      onChange={(e) => {
+                        const permissoes = e.map(t => t.value)
+                        handleFormChange({ permissoes })
+                      }}
+                      inputRef={refs.permissoes}
+                      options={permissoes.map((opt) => ({
+                        value : opt.id,
+                        label: opt.nome
+                      }))}
+                      isMulti
+                      mb="15px"
                   />
                 </GridItem>
-                <GridItem w='100%' colSpan={{ base: 4, lg: 3}}/>
                 <GridItem w='100%' colSpan={{ base: 4, lg: 2}}>
                   <InputText
-                    label="Senha*"
+                    label="Senha"
                     widht="100%"
                     value={formulario.senha}
                     isError={!!errors.senha}
                     errorText={errors.senha}
                     onChange={(e) => handleFormChange({ senha: e.target.value })}
                     inputRef={refs.senha}
-                    mb="15px"
-                    type='phone'
+                      mb="15px"
                   />
                 </GridItem>
               </Grid>
