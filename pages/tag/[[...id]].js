@@ -40,7 +40,7 @@ export default function Tag() {
 
     useEffect(() => {
       if(!permissoes?.permTags) {
-          router.back()
+          // router.back()
       }
     },[])
 
@@ -83,7 +83,7 @@ export default function Tag() {
         if(id)  await api.patch(`${key}/${id}`, { ...formulario })
         else  await api.post(`${key}`, { ...formulario })
        
-        router.back()
+        // router.back()
         setFormulario({})
         toast({
           description: (
@@ -143,7 +143,7 @@ export default function Tag() {
               <Button
                   w="150px"
                   onClick={() => {
-                    router.back()
+                    // router.back()
                   }}
                   size="sm"
                 >
@@ -181,7 +181,7 @@ export default function Tag() {
               <Button
                   w="150px"
                   onClick={() => {
-                    router.back()
+                    // router.back()
                   }}
                   size="sm"
                 >

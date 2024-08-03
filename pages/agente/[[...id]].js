@@ -83,7 +83,7 @@ export default function Agente() {
         if(id)  await api.patch(`${key}/${id}`, { ...dadosAlterados })
         else  await api.post(`${key}`, { ...formulario })
        
-        router.back()
+        // router.back()
         setFormulario({})
         toast({
           description: (
@@ -164,7 +164,7 @@ export default function Agente() {
               <Button
                   w="150px"
                   onClick={() => {
-                    router.back()
+                    // router.back()
                   }}
                   size="sm"
                 >
@@ -246,7 +246,7 @@ export default function Agente() {
               <Button
                   w="150px"
                   onClick={() => {
-                    router.back()
+                    // router.back()
                   }}
                   size="sm"
                 >

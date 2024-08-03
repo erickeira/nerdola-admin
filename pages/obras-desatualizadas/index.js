@@ -55,7 +55,7 @@ export default function Obras() {
 
     useEffect(() => {
         if(!permissoes?.permObras) {
-            router.back()
+            // router.back()
         }
     },[])
 

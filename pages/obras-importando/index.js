@@ -133,112 +133,13 @@ export default function Obras() {
             width: 80,
             editable: false
         },
-        {
-            field: 'total_usuarios_lendo',
-            headerName: 'Lendo',
-            width: 80,
-            editable: false
-        },
-        {
-            field: 'links',
-            headerName: 'Links',
-            width: 80,
-            editable: false,
-            valueGetter: (links) => links.length
-        },
-        {
-            field: 'status',
-            headerName: 'Status',
-            editable: false,
-            width: 130,
-            renderCell: (params) => {
 
-                const statusColor = {
-                    1 : 'blue',
-                    2 : 'green',
-                    3 : 'yellow',
-                    4 : 'red'
-                }[params?.value.id]
-
-                return (
-                    <Flex
-                        height="100%"
-                        align="center"
-                        justify="center"
-                    >
-                        <Tag 
-                            h="fit-content" 
-                            px="15px"
-                            colorScheme={statusColor}
-                            borderRadius="full"
-                            size="sm"
-                            w="100px"
-                            justifyContent="center"
-                        >
-                            {params?.value?.nome}
-                        </Tag>
-                    </Flex>
-                )
-            }
-        },
-        {
-            field: 'actions',
-            type: 'actions',
-            headerName: 'Ações',
-            width: 80,
-            cellClassName: 'actions',
-            getActions: ({ id }) => {   
-              return [
-                <Menu>
-                    <MenuButton size="md" as={IconButton} icon={<HamburgerIcon />}/>
-                    <MenuList>
-                        <MenuItem
-                            icon={<IconEdit size={16}/>}
-                            onClick={(e) => {
-                                e.stopPropagation(); 
-                                onEdit(id)
-                            }}
-                            size="sm"
-                            height="40px"
-                        >
-                            Editar
-                        </MenuItem>
-                        <MenuItem
-                            icon={<IconListNumbers stroke={1.25} size={16} />}
-                            onClick={(e) => {
-                                e.stopPropagation(); 
-                                onCapitulos(id)
-                            }}
-                            size="sm"
-                            height="40px"
-                        >
-                            Capitulos
-                        </MenuItem>
-                            
-                        <Divider my="8px"/>
-                        <MenuItem
-                            icon={<DeleteIcon size={16}/>}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setIdAction(id)
-                                onOpenDelete();
-                            }}
-                            color="red.400"
-                            size="sm"
-                            height="40px"
-                        >Excluir</MenuItem>
-                    </MenuList>
-                </Menu>,
-              ];
-            },
-        },
     ];
 
     const columns  = useBreakpointValue({
         base: [
             columnsAll[0],
-            columnsAll[1],
-            columnsAll[8]
+            columnsAll[1]
         ],
         lg: columnsAll
     }) 
@@ -251,7 +152,8 @@ export default function Obras() {
         try{
             const response = await api.get('obras', {
                 params: {
-                    limite: 500
+                    limite: 500,
+                    importando : true
                 }
             })
             setLoading(true)
@@ -263,35 +165,7 @@ export default function Obras() {
         }
     }
 
-    const onEdit = (id) => {
-        navigate(`/obra/${id}`)
-    };   
-
-    const onDelete = async (e) => {
-        onCloseDelete()
-        if(idAction){
-            try{
-                const response = await api.delete(`obras/${idAction}`)
-                toast({
-                    title: 'Obra removida com sucesso!.',
-                    status: 'success',
-                    position: 'bottom-right',
-                    duration: 3000,
-                    isClosable: true,
-                })
-                getObras()
-            }catch(error){
-              console.log(error)
-            } finally {
-              setLoading(false)
-            }
-        }
-    };
-
-    const onCapitulos = (id) => {
-        navigate(`/capitulos/${id}`)
-    }
-
+   
     return (
         <Flex justify="center" >
             <Box 
@@ -304,23 +178,10 @@ export default function Obras() {
             >
                 <Breadcrumb>
                     <BreadcrumbItem>
-                        <BreadcrumbLink href='#'>Obras</BreadcrumbLink>
+                        <BreadcrumbLink href='#'>Obras importando</BreadcrumbLink>
                     </BreadcrumbItem>
                 </Breadcrumb>
-                <Flex mb="10px">
-                    <Spacer/>
-                    <Button 
-                        size="sm" 
-                        rightIcon={<AddIcon/>}
-                        onClick={() => {
-                            navigate('/obra')
-                        }}
-                        variant="outline"
-                        colorScheme="blue"
-                    >
-                        Adicionar
-                    </Button>
-                </Flex>
+              
                 <Divider my="30px"/>
                 <DataGrid
                     rows={obras}
@@ -347,32 +208,6 @@ export default function Obras() {
                     }
                 />
             </Box>
-            <AlertDialog
-                isOpen={isOpenDelete}
-                leastDestructiveRef={cancelRef}
-                onClose={onCloseDelete}
-            >
-                <AlertDialogOverlay>
-                    <AlertDialogContent>
-                        <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-                            Excluir
-                        </AlertDialogHeader>
-
-                        <AlertDialogBody>
-                            Tem certeza? Voce não poderá desfazer essa ação.
-                        </AlertDialogBody>
-
-                        <AlertDialogFooter>
-                        <Button ref={cancelRef} onClick={onCloseDelete}>
-                            Cancelar
-                        </Button>
-                        <Button colorScheme='red' onClick={onDelete} ml={3}>
-                            Excluir
-                        </Button>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialogOverlay>
-            </AlertDialog>
         </Flex>
     );
   }

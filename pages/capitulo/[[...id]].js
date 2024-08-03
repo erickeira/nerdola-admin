@@ -52,7 +52,7 @@ export default function Capitulo() {
 
     useEffect(() => {
       if(!permissoes?.permObras) {
-          router.back()
+          // router.back()
       }
     },[])
 
@@ -101,7 +101,7 @@ export default function Capitulo() {
         if(id)  await api.patch(`${key}/${id}`, { ...formulario })
         else  await api.post(`${key}`, { ...formulario, obra, notification })
         
-        router.back()
+        // router.back()
         setFormulario({})
         toast({
           description: (
@@ -223,7 +223,7 @@ export default function Capitulo() {
               <Button
                   w="150px"
                   onClick={() => {
-                    router.back()
+                    // router.back()
                   }}
                   size="sm"
                 >
@@ -400,7 +400,7 @@ export default function Capitulo() {
               <Button
                   w="150px"
                   onClick={() => {
-                    router.back()
+                    // router.back()
                   }}
                   size="sm"
                 >

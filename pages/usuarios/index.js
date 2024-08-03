@@ -57,7 +57,7 @@ export default function Usuarios() {
 
     useEffect(() => {
         if(!permissoes?.permTags) {
-            router.back()
+            // router.back()
         }
     },[])
 

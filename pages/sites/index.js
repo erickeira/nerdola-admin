@@ -57,7 +57,7 @@ export default function Sites() {
 
     useEffect(() => {
         if(!permissoes?.permSites) {
-            router.back()
+            // router.back()
         }
     },[])
 

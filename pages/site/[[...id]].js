@@ -43,7 +43,7 @@ export default function Site() {
 
     useEffect(() => {
       if(!permissoes?.permSites) {
-          router.back()
+          // router.back()
       }
     },[])
 
@@ -88,7 +88,7 @@ export default function Site() {
         if(id)  await api.patch(`${key}/${id}`, { ...formulario })
         else  await api.post(`${key}`, { ...formulario })
        
-        router.back()
+        // router.back()
         setFormulario({})
         toast({
           description: (
@@ -148,7 +148,7 @@ export default function Site() {
               <Button
                   w="150px"
                   onClick={() => {
-                    router.back()
+                    // router.back()
                   }}
                   size="sm"
                 >
@@ -244,7 +244,7 @@ export default function Site() {
               <Button
                   w="150px"
                   onClick={() => {
-                    router.back()
+                    // router.back()
                   }}
                   size="sm"
                 >

@@ -13,6 +13,7 @@ const layouts = [
     '/tags','/tag',
     '/usuarios','/usuario',
     '/obras-desatualizadas',
+    '/obras-importando',
     '/capitulos','/capitulo',
     '/agentes','/agente',
     '/pedidos',

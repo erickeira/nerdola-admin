@@ -64,7 +64,7 @@ export default function Pedidos() {
 
     useEffect(() => {
         if(!permissoes?.permPedidos) {
-            router.back()
+            // router.back()
         }
     },[])
 

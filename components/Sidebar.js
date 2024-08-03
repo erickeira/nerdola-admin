@@ -13,7 +13,8 @@ import {
     IconWorldWww,
     IconBooks,
     IconBookOff,
-    IconUserShield
+    IconUserShield,
+    IconCloudUp 
 } from '@tabler/icons-react';
 
 import { 
@@ -107,6 +108,18 @@ export default function SideBar({menuClosed,setMenuClosed, drawerOpen, setDrawer
                 icon={<IconBookOff size={20}/>}
               > 
                 Obras desatualizadas
+              </MenuItem>
+
+              <MenuItem 
+                active={isActive('/obras-importando')} 
+                onClick={() => {
+                  handleClick('/obras-importando')
+                  closeDrawer()
+                }} 
+                style={styles.textItem} 
+                icon={<IconCloudUp  size={20}/>}
+              > 
+                Obras importando
               </MenuItem>
               
               <MenuItem 

@@ -38,7 +38,7 @@ import { useGlobal } from '@/context/GlobalContext';
 import { ptBR } from '@/utils/datagrid_ptBr';
 import { AddIcon, DeleteIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
 import api from '@/utils/api';
-import { IconPhoto , IconEdit } from '@tabler/icons-react';
+import { IconPhoto , IconEdit, IconCloudUpload } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 import dayjs from 'dayjs';
 import { imageUrl } from '@/utils';
@@ -61,7 +61,7 @@ export default function Capitulos() {
 
     useEffect(() => {
         if(!permissoes?.permObras) {
-            router.back()
+            // router.back()
         }
     },[])
 
@@ -116,6 +116,14 @@ export default function Capitulos() {
             headerName: 'Número',
             width: 250,
             editable: false,
+            valueGetter: (numero) => parseInt(numero)
+        },
+        {
+            field: 'tem_paginas',
+            headerName: 'Tem páginas',
+            width: 250,
+            editable: false,
+            valueGetter: (tem_paginas) => tem_paginas ? "Sim" : "Não"
         },
         {
             field: 'criado_em',
@@ -237,6 +245,23 @@ export default function Capitulos() {
         }
     }
 
+    const [isLoadingImportacao, setIsLoadingImportacao] = useState(false)
+    const  handleImportarPaginas = async () => {
+        setIsLoadingImportacao(true)
+        try{
+            toast({
+                description: `As obras estão na fila de importação, por favor aguarde`,
+                status: 'info',
+                isClosable: true,
+            })
+            await api.post(`obras/${id}/importar-todos-capitulos`)
+        }catch(error){
+            console.log(error)
+        } finally {
+            setIsLoadingImportacao(false)
+        }
+    }
+
     return (
         <Flex justify="center" >
             <Box 
@@ -256,17 +281,27 @@ export default function Capitulos() {
                     </BreadcrumbItem>
                 </Breadcrumb>
                 <Divider my="30px"/>
-                <Flex mb="10px">
+                <Flex mb="10px" gap="10px">
                     <Button
                     w="150px"
                     onClick={() => {
-                        router.back()
+                        // router.back()
                     }}
                     size="sm"
                     >
-                    Voltar
+                        Voltar
                     </Button>
                     <Spacer/>
+                    <Button 
+                        size="sm" 
+                        rightIcon={<IconCloudUpload/>}
+                        onClick={handleImportarPaginas}
+                        variant="outline"
+                        colorScheme="gray"
+                        isLoading={isLoadingImportacao}
+                    >
+                        Importar páginas
+                    </Button>
                     <Button 
                         size="sm" 
                         rightIcon={<AddIcon/>}
