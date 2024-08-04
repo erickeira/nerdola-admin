@@ -33,14 +33,22 @@ import {
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
+    ModalCloseButton,
 } from '@chakra-ui/react';
 import { useGlobal } from '@/context/GlobalContext';
 import { ptBR } from '@/utils/datagrid_ptBr';
 import { AddIcon, DeleteIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
 import api from '@/utils/api';
-import { IconEdit, IconListNumbers, IconPhoto , } from '@tabler/icons-react';
+import { IconEdit, IconListNumbers, IconPhoto , IconRowInsertTop , IconCloudUpload } from '@tabler/icons-react';
 import { imageUrl } from '@/utils';
 import { useRouter } from 'next/router';
+import InputText from '@/components/inputs/InputText';
 
 
 export default function Obras() {
@@ -48,6 +56,7 @@ export default function Obras() {
     const [obras, setObras] = useState([])
     const [ isLoading, setLoading] = useState(true)
     const { isOpen : isOpenDelete, onOpen : onOpenDelete, onClose: onCloseDelete } = useDisclosure()
+    const { isOpen : isOpenAdicionar, onOpen : onOpenAdicionar, onClose: onCloseAdicionar } = useDisclosure()
     const [ idAction, setIdAction ] = useState(null)
     const cancelRef = useRef()
     const toast = useToast()
@@ -193,7 +202,7 @@ export default function Obras() {
                     <MenuButton size="md" as={IconButton} icon={<HamburgerIcon />}/>
                     <MenuList>
                         <MenuItem
-                            icon={<IconEdit size={16}/>}
+                            icon={<IconEdit stroke={1.25} size={16}/>}
                             onClick={(e) => {
                                 e.stopPropagation(); 
                                 onEdit(id)
@@ -213,6 +222,30 @@ export default function Obras() {
                             height="40px"
                         >
                             Capitulos
+                        </MenuItem>
+                        <Divider my="8px"/>
+                        <MenuItem
+                            icon={<IconCloudUpload stroke={1.25} size={16} />}
+                            onClick={(e) => {
+                                e.stopPropagation(); 
+                                handleImportarPaginas(id)
+                            }}
+                            size="sm"
+                            height="40px"
+                        >
+                            Importar páginas
+                        </MenuItem>
+                        <MenuItem
+                            icon={<IconRowInsertTop  stroke={1.25} size={16} />}
+                            onClick={(e) => {
+                                e.stopPropagation(); 
+                                setIdAction(id)
+                                onOpenAdicionar()
+                            }}
+                            size="sm"
+                            height="40px"
+                        >
+                            Adicionar capitulos
                         </MenuItem>
                             
                         <Divider my="8px"/>
@@ -291,6 +324,51 @@ export default function Obras() {
     const onCapitulos = (id) => {
         navigate(`/capitulos/${id}`)
     }
+
+    const [isLoadingImportacao, setIsLoadingImportacao] = useState(false)
+    const  handleImportarPaginas = async (id) => {
+        setIsLoadingImportacao(true)
+        try{
+            toast({
+                description: `As obras estão na fila de importação, por favor aguarde`,
+                status: 'info',
+                isClosable: true,
+            })
+            await api.post(`obras/${id}/importar-todos-capitulos`)
+        }catch(error){
+            console.log(error)
+        } finally {
+            setIsLoadingImportacao(false)
+        }
+    }
+
+    const [isLoadingAdicionar, setIsLoadingAdicionar] = useState(false)
+    const [ ate, setAte ] = useState('')
+    const [ isErroAte ,setIsErrorAte] = useState(false)
+    const handleAdicionarCapitulos = async () => {
+        setIsLoadingAdicionar(true)
+        if(!ate) setIsErrorAte(true)
+        try{
+            await api.post(`obras/${idAction}/criar-capitulos`,{
+                ate
+            })
+            toast({
+                description: `Capitulos adicionados com sucesso!`,
+                status: 'success',
+                isClosable: true,
+            })
+            getObras()
+        }catch(error){
+        } finally {
+            onCloseAdicionar()
+            setIsLoadingAdicionar(false)
+        }
+    }
+
+    useEffect(() => {
+        setAte('')
+    },[isOpenAdicionar])
+
 
     return (
         <Flex justify="center" >
@@ -373,6 +451,39 @@ export default function Obras() {
                     </AlertDialogContent>
                 </AlertDialogOverlay>
             </AlertDialog>
+            <Modal isOpen={isOpenAdicionar} onClose={onCloseAdicionar}>
+                <ModalOverlay />
+                <ModalContent>
+                <ModalHeader>Adicionar capitulos</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                    <InputText
+                        label="Informe o ultimo capitulo*"
+                        widht="100%"
+                        value={ate}
+                        isError={isErroAte}
+                        errorText={"Informe o ultimo capitulo"}
+                        onChange={(e) => {
+                            setIsErrorAte(false)
+                            setAte(e.target.value)
+                        }}
+                        mb="15px"
+                    />
+                </ModalBody>
+
+                <ModalFooter>
+                    <Button colorScheme='blue' mr={3} onClick={onCloseAdicionar}>
+                        Fechar
+                    </Button>
+                    <Button 
+                        variant='ghost'
+                        onClick={() => {
+                            handleAdicionarCapitulos()
+                        }}
+                    >Adicionar</Button>
+                </ModalFooter>
+                </ModalContent>
+            </Modal>
         </Flex>
     );
   }

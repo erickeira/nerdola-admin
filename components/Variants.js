@@ -452,7 +452,7 @@ export default function Variants({
                                             variant="ghost"
                                             p="0px"
                                             height="30px"
-                                            icon={<IconEdit size="15px"/>}
+                                            icon={<IconEdit stroke={1.25}size="15px"/>}
                                             onClick={() => {
                                                 handleOption(index)
                                             }}

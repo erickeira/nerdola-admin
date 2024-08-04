@@ -144,7 +144,7 @@ export default function Capitulos() {
                     <MenuButton size="md" as={IconButton} icon={<HamburgerIcon />}/>
                     <MenuList>
                         <MenuItem
-                            icon={<IconEdit size={16}/>}
+                            icon={<IconEdit stroke={1.25}size={16}/>}
                             onClick={(e) => {
                                 e.stopPropagation(); 
                                 onEdit(id)
