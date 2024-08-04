@@ -57,7 +57,7 @@ export default function Agentes() {
 
     useEffect(() => {
         if(!permissoes?.permAgentes) {
-            // router.back()
+           // router.back()
         }
     },[])
 

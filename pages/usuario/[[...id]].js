@@ -42,7 +42,7 @@ export default function Usuario() {
 
     useEffect(() => {
       if(!permissoes?.permTags) {
-          // router.back()
+          router.back()
       }
     },[])
 
@@ -88,7 +88,7 @@ export default function Usuario() {
         if(id)  await api.patch(`${key}/${id}`, { ...formulario })
         else  await api.post(`${key}`, { ...formulario })
        
-        // router.back()
+        router.back()
         setFormulario({})
         toast({
           description: (
@@ -148,7 +148,7 @@ export default function Usuario() {
               <Button
                   w="150px"
                   onClick={() => {
-                    // router.back()
+                    router.back()
                   }}
                   size="sm"
                 >
@@ -243,7 +243,7 @@ export default function Usuario() {
               <Button
                   w="150px"
                   onClick={() => {
-                    // router.back()
+                    router.back()
                   }}
                   size="sm"
                 >

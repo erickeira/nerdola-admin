@@ -57,7 +57,7 @@ export default function Tags() {
 
     useEffect(() => {
         if(!permissoes?.permObras) {
-            // router.back()
+           // router.back()
         }
     },[])
 

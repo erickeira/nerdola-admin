@@ -61,7 +61,7 @@ export default function Capitulos() {
 
     useEffect(() => {
         if(!permissoes?.permObras) {
-            // router.back()
+           // router.back()
         }
     },[])
 
@@ -285,7 +285,7 @@ export default function Capitulos() {
                     <Button
                     w="150px"
                     onClick={() => {
-                        // router.back()
+                        router.back()
                     }}
                     size="sm"
                     >

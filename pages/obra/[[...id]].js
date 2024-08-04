@@ -104,7 +104,7 @@ export default function Obra() {
         if(id)  await api.patch(`obras/${id}`, { ...dadosAlterado })
         else  await api.post('obras', { ...obra })
        
-        // router.back()
+        router.back()
         setObra({})
         toast({
           description: (
@@ -268,7 +268,7 @@ export default function Obra() {
               <Button
                   w="150px"
                   onClick={() => {
-                    // router.back()
+                    router.back()
                   }}
                   size="sm"
                 >
@@ -604,7 +604,7 @@ export default function Obra() {
               <Button
                   w="150px"
                   onClick={() => {
-                    // router.back()
+                    router.back()
                   }}
                   size="sm"
                 >
