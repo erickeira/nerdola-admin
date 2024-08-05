@@ -133,7 +133,12 @@ export default function Obras() {
             width: 80,
             editable: false
         },
-
+        {
+            field: 'capitulos_importados',
+            headerName: 'Imp.',
+            width: 80,
+            editable: false
+        },
     ];
 
     const columns  = useBreakpointValue({
@@ -146,6 +151,9 @@ export default function Obras() {
 
     useEffect(() => {
         getObras()
+        setInterval(() => {
+            getObras()
+        }, 5000);
     },[])
 
     const getObras = async () => {

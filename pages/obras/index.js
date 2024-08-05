@@ -144,7 +144,7 @@ export default function Obras() {
         },
         {
             field: 'capitulos_importados',
-            headerName: 'Cap. Imp.',
+            headerName: 'Imp.',
             width: 80,
             editable: false
         },
