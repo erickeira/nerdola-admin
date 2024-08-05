@@ -143,6 +143,12 @@ export default function Obras() {
             editable: false
         },
         {
+            field: 'capitulos_importados',
+            headerName: 'Cap. Imp.',
+            width: 80,
+            editable: false
+        },
+        {
             field: 'total_usuarios_lendo',
             headerName: 'Lendo',
             width: 80,
