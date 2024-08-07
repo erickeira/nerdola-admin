@@ -38,7 +38,7 @@ import { useGlobal } from '@/context/GlobalContext';
 import { ptBR } from '@/utils/datagrid_ptBr';
 import { AddIcon, DeleteIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
 import api from '@/utils/api';
-import { IconEdit, IconListNumbers, IconPhoto , } from '@tabler/icons-react';
+import { IconEdit, IconListNumbers, IconPhoto, IconX , } from '@tabler/icons-react';
 import { imageUrl } from '@/utils';
 import { useRouter } from 'next/router';
 
@@ -139,6 +139,34 @@ export default function Obras() {
             width: 80,
             editable: false
         },
+        {
+            field: 'capitulos_nao_importados',
+            headerName: 'Erro',
+            width: 80,
+            editable: false
+        },
+        {
+            field: 'actions',
+            type: 'actions',
+            headerName: 'Ações',
+            width: 80,
+            cellClassName: 'actions',
+            getActions: ({ id }) => {   
+              return [
+                <IconButton
+                    icon={<IconX size={16}/>}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIdAction(id)
+                        cancelarImportacao(id);
+                    }}
+                    colorScheme="red"
+                    size="sm"
+                    height="40px"
+                />,
+              ];
+            },
+        },
     ];
 
     const columns  = useBreakpointValue({
@@ -173,6 +201,23 @@ export default function Obras() {
         }
     }
 
+    const cancelarImportacao = async (id) => {
+        try{
+            await api.post(`obras/${id}/cancelar-importacao`)
+            toast({
+                title: 'Cancelado com sucesso!.',
+                status: 'success',
+                position: 'bottom-right',
+                duration: 3000,
+                isClosable: true,
+            })
+            getObras()
+        }catch(error){
+          console.log(error)
+        } finally {
+          setLoading(false)
+        }
+    }
    
     return (
         <Flex justify="center" >

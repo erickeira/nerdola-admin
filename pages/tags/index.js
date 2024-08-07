@@ -39,6 +39,7 @@ import { ptBR } from '@/utils/datagrid_ptBr';
 import { AddIcon, DeleteIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
 import api from '@/utils/api';
 import { IconEdit, IconPhoto , } from '@tabler/icons-react';
+import { useRouter } from 'next/router';
 
 
 export default function Tags() {

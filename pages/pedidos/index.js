@@ -38,6 +38,7 @@ import {
     Spinner,
     Text,
     useBreakpointValue,
+    Link
 } from '@chakra-ui/react';
 import { useGlobal } from '@/context/GlobalContext';
 import { ptBR } from '@/utils/datagrid_ptBr';
@@ -183,6 +184,7 @@ export default function Pedidos() {
                                     e.stopPropagation(); 
                                     onEdit(row.id, row.nome)
                                 }}
+                                as={Link}
                                 size="sm"
                                 color="green"
                                 height="40px"
