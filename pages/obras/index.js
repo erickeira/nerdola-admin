@@ -71,6 +71,13 @@ export default function Obras() {
 
     const columnsAll = [
         {
+            field: 'id',
+            headerName: 'Id ',
+            editable: false,
+            // flex: 1,
+            width: 20
+        },
+        {
             field: 'imagem',
             headerName: 'Imagem',
             width: 100,
@@ -275,9 +282,9 @@ export default function Obras() {
 
     const columns  = useBreakpointValue({
         base: [
-            columnsAll[0],
             columnsAll[1],
-            columnsAll[8]
+            columnsAll[2],
+            columnsAll[10]
         ],
         lg: columnsAll
     }) 
