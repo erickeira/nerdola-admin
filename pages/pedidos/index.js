@@ -42,7 +42,7 @@ import {
 } from '@chakra-ui/react';
 import { useGlobal } from '@/context/GlobalContext';
 import { ptBR } from '@/utils/datagrid_ptBr';
-import { AddIcon, ChevronDownIcon, DeleteIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
+import { AddIcon, ChevronDownIcon, DeleteIcon, EditIcon, HamburgerIcon, SearchIcon } from '@chakra-ui/icons';
 import api from '@/utils/api';
 import { IconListNumbers, IconPhoto , IconCheck , IconX } from '@tabler/icons-react';
 import { imageUrl } from '@/utils';
@@ -50,6 +50,7 @@ import dayjs from 'dayjs'
 import InputSelect from '@/components/inputs/InputSelect';
 import InputText from '@/components/inputs/InputText';
 import { useRouter } from 'next/router';
+import Pagination from '@/components/Pagination';
 
 
 export default function Pedidos() {
@@ -62,6 +63,10 @@ export default function Pedidos() {
     const cancelRef = useRef()
     const toast = useToast()
     const router = useRouter()
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [limit, setLimit] = useState(20);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         if(!permissoes?.permPedidos) {
@@ -69,203 +74,51 @@ export default function Pedidos() {
         }
     },[])
 
-    const columnsAll = [
-        {
-            field: 'nome',
-            headerName: 'Nome ',
-            editable: false,
-            width: useBreakpointValue({
-                base: 200,
-                lg: 300
-            }),
-        },
-        {
-            field: 'onde_ler',
-            headerName: 'Onde Ler',
-            width: 200,
-            editable: false,
-        },
-        {
-            field: 'usuario',
-            headerName: 'Quem pediu',
-            width: 200,
-            editable: false,
-            valueGetter: (value) => value.nome
-        },
-        {
-            field: 'obra',
-            headerName: 'Obra relacionada',
-            width: 300,
-            editable: false,
-            renderCell: (params) => {
-                if(params.value?.id){
-                    return(
-                        <Button
-                            colorScheme="gray"
-                            size="sm"
-                            onClick={() => {
-                                navigate(`/obra/${row.obra.id}`)
-                            }}
-                        >
-                            {params.value?.nome}
-                        </Button>
-                    )
+    useEffect(() => {
+        const { pagina, limite, busca } = router.query;
+        if (pagina) setPage(Number(pagina));
+        if (limite) setLimit(Number(limite));
+        if (busca) setSearchTerm(busca);
+    }, [router.query]);
+
+    useEffect(() => {
+        getPedidos()
+    }, [page, limit, searchTerm])
+
+    const getPedidos = async () => {
+        try {
+            setLoading(true)
+            const response = await api.get('pedido', {
+                params: {
+                    pagina: page,
+                    limite: limit,
+                    string: searchTerm
                 }
+            })
+            setPedidos(response.data.resultados)
+            setTotalPages(Math.ceil(response.data.total / limit))
+            
+            router.push({
+                pathname: router.pathname,
+                query: { ...router.query, pagina: page, limite: limit, busca: searchTerm },
+            }, undefined, { shallow: true });
+        } catch(error) {
+            console.log(error)
+        } finally {
+            setLoading(false)
+        }
+    }
 
-                return null
-            }
-        },
-        {
-            field: 'criado_em',
-            headerName: 'Pedido em',
-            width: 200,
-            editable: false,
-            valueGetter: (value) => dayjs(value).format('DD/MM/YYYY HH:mm')
-        },
-        {
-            field: 'status',
-            headerName: 'Status',
-            editable: false,
-            width: useBreakpointValue({
-                base: 60,
-                lg: 130
-            }),
-            renderCell: (params) => {
-
-                const statusColor = {
-                    "publicado" : 'green',
-                    "em_analise" : 'yellow',
-                    "reprovado" : 'red'
-                }[params?.value]
-
-                const statusLabel = {
-                    "publicado" : 'Publicado',
-                    "em_analise" : 'Em analise',
-                    "reprovado" : 'Reprovado'
-                }[params?.value]
-
-                return (
-                    <Flex
-                        height="100%"
-                        align="center"
-                        justify="center"
-                    >
-                        <Tag 
-                            h="fit-content" 
-                            px={{base: '0px', lg: '15px'}}
-                            colorScheme={statusColor}
-                            borderRadius="full"
-                            size="sm"
-                            display={{base: '10px', lg: '100px'}}
-                            justifyContent="center"
-                        >
-                            <Text display={{base: 'none', lg: 'block'}}>
-                                {statusLabel}
-                            </Text>
-                        </Tag>
-                    </Flex>
-                )
-            }
-        },
-        {
-            field: 'actions',
-            type: 'actions',
-            headerName: 'Ações',
-            width: 80,
-            cellClassName: 'actions',
-            getActions: ({ id, row }) => {   
-              if(row.status == 'em_analise'){
-                return [
-                    <Menu>
-                        <MenuButton size="md" as={IconButton} icon={<HamburgerIcon />}/>
-                        <MenuList>
-                            <MenuItem
-                                onClick={(e) => {
-                                    e.stopPropagation(); 
-                                    onEdit(row.id, row.nome)
-                                }}
-                                as={Link}
-                                size="sm"
-                                color="green"
-                                height="40px"
-                            >
-                                Criar obra
-                            </MenuItem>
-                            <MenuItem
-                                onClick={(e) => {
-                                    setIdAction(id)
-                                    onOpenObras()
-                                    getObras()
-                                }}
-                                size="sm"
-                                height="40px"
-                            >
-                                Vincular obra
-                            </MenuItem>
-                                
-                            <Divider my="8px"/>
-                            <MenuItem
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setIdAction(id)
-                                    onOpenDelete();
-                                }}
-                                color="red.400"
-                                size="sm"
-                                height="40px"
-                            >Reprovar</MenuItem>
-                        </MenuList>
-                    </Menu>
-                  ]
-              }
-            return [
-                <Menu>
-                    <MenuButton size="md" as={IconButton} icon={<HamburgerIcon />}/>
-                    <MenuList>
-                        <MenuItem
-                            onClick={(e) => {
-                                setIdAction(id)
-                                onOpenObras()
-                                getObras()
-                            }}
-                            size="sm"
-                            height="40px"
-                        >
-                            Vincular obra
-                        </MenuItem>
-                    </MenuList>
-                </Menu>
-                ]
-              
-            },
-        },
-    ];
-
-    const columns  = useBreakpointValue({
-        base: [
-            columnsAll[0],
-            columnsAll[5],
-            columnsAll[6]
-        ],
-        lg: columnsAll
-    }) 
+    const handleSearch = (e) => {
+        e.preventDefault();
+        setPage(1);
+        getPedidos();
+    };
 
 
     useEffect(() => {
         getPedidos()
     },[])
-
-    const getPedidos = async () => {
-        try{
-            const response = await api.get('pedido')
-            setLoading(true)
-            setPedidos(response.data)
-        }catch(error){
-          console.log(error)
-        } finally {
-          setLoading(false)
-        }
-    }
 
     const onEdit = (pedido, nome) => {
         navigate(`/obra`, {
@@ -338,14 +191,36 @@ export default function Pedidos() {
         <Flex justify="center" >
             <Box 
                 maxWidth="1500px"
+                minWidth="1000px"
                 sx={{
                     '.even' : {
                         bgColor: '#f6f6f6'
                     }
                 }}    
             >
-                <Flex mb="10px">
-                    <Spacer/>
+                <Flex mb="10px" alignItems="center">
+                    <form onSubmit={handleSearch} style={{ flex: 1 }}>
+                        <InputGroup>
+                            <Input
+                                placeholder="Buscar pedidos..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onKeyPress={(e) => {
+                                    if (e.key === 'Enter') {
+                                        handleSearch(e);
+                                    }
+                                }}
+                            />
+                            <InputRightElement>
+                                <IconButton
+                                    aria-label="Buscar pedidos"
+                                    icon={<SearchIcon />}
+                                    onClick={handleSearch}
+                                />
+                            </InputRightElement>
+                        </InputGroup>
+                    </form>
+                    <Spacer />
                     <Button 
                         size="sm" 
                         rightIcon={<AddIcon/>}
@@ -354,114 +229,206 @@ export default function Pedidos() {
                         }}
                         variant="outline"
                         colorScheme="blue"
+                        ml={4}
                     >
                         Adicionar
                     </Button>
                 </Flex>
-                <DataGrid
-                    rows={pedidos}
-                    columns={columns}
-                    initialState={{
-                    pagination: {
-                        paginationModel: {
-                        pageSize: 50,
-                        },
-                    },
-                    }}
-                    rowHeight={80}
-                    pageSizeOptions={[15]}
-                    // checkboxSelection
-                    disableRowSelectionOnClick
-                    sx={{
-                        // minHeight: "calc(100vh - 120px)",
-                        backgroundColor: '#fff',
-                    }}
-                    localeText={ptBR}
-                    autoHeight
-                    getRowClassName={(params) =>
-                        params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
-                    }
+                <Divider my="30px"/>
+                <TableContainer>
+                    <Table variant="striped" size="sm" colorScheme="gray">
+                        <Thead>
+                            <Tr>
+                                <Th>Nome</Th>
+                                <Th>Onde Ler</Th>
+                                <Th>Quem pediu</Th>
+                                <Th>Obra relacionada</Th>
+                                <Th>Pedido em</Th>
+                                <Th>Status</Th>
+                                <Th>Ações</Th>
+                            </Tr>
+                        </Thead>
+                        <Tbody>
+                            {pedidos.map((pedido) => (
+                                <Tr key={pedido.id}>
+                                    <Td>{pedido.nome}</Td>
+                                    <Td>{pedido.onde_ler}</Td>
+                                    <Td>{pedido.usuario.nome}</Td>
+                                    <Td>
+                                        {pedido.obra?.id && (
+                                            <Button
+                                                colorScheme="gray"
+                                                size="sm"
+                                                onClick={() => navigate(`/obra/${pedido.obra.id}`)}
+                                            >
+                                                {pedido.obra.nome}
+                                            </Button>
+                                        )}
+                                    </Td>
+                                    <Td>{dayjs(pedido.criado_em).format('DD/MM/YYYY HH:mm')}</Td>
+                                    <Td>
+                                        <Tag 
+                                            colorScheme={{
+                                                "publicado" : 'green',
+                                                "em_analise" : 'yellow',
+                                                "reprovado" : 'red'
+                                            }[pedido.status]}
+                                            borderRadius="full"
+                                            size="sm"
+                                            w="100px"
+                                            justifyContent="center"
+                                        >
+                                            {{
+                                                "publicado" : 'Publicado',
+                                                "em_analise" : 'Em analise',
+                                                "reprovado" : 'Reprovado'
+                                            }[pedido.status]}
+                                        </Tag>
+                                    </Td>
+                                    <Td>
+                                        <Menu>
+                                            <MenuButton size="md" as={IconButton} icon={<HamburgerIcon />} />
+                                            <MenuList>
+                                                {pedido.status === 'em_analise' && (
+                                                    <>
+                                                        <MenuItem
+                                                            onClick={() => onEdit(pedido.id, pedido.nome)}
+                                                            icon={<EditIcon />}
+                                                        >
+                                                            Criar obra
+                                                        </MenuItem>
+                                                        <MenuItem
+                                                            onClick={() => {
+                                                                setIdAction(pedido.id)
+                                                                onOpenObras()
+                                                                getObras()
+                                                            }}
+                                                            icon={<IconListNumbers stroke={1.25} size={16} />}
+                                                        >
+                                                            Vincular obra
+                                                        </MenuItem>
+                                                        <Divider my="8px"/>
+                                                        <MenuItem
+                                                            onClick={() => {
+                                                                setIdAction(pedido.id)
+                                                                onOpenDelete();
+                                                            }}
+                                                            icon={<DeleteIcon />}
+                                                            color="red.400"
+                                                        >
+                                                            Reprovar
+                                                        </MenuItem>
+                                                    </>
+                                                )}
+                                                {pedido.status !== 'em_analise' && (
+                                                    <MenuItem
+                                                        onClick={() => {
+                                                            setIdAction(pedido.id)
+                                                            onOpenObras()
+                                                            getObras()
+                                                        }}
+                                                        icon={<IconListNumbers stroke={1.25} size={16} />}
+                                                    >
+                                                        Vincular obra
+                                                    </MenuItem>
+                                                )}
+                                            </MenuList>
+                                        </Menu>
+                                    </Td>
+                                </Tr>
+                            ))}
+                        </Tbody>
+                    </Table>
+                </TableContainer>
+                
+                <Pagination
+                    currentPage={page}
+                    totalPages={totalPages}
+                    totalItems={totalPages * limit}
+                    itemsPerPage={limit}
+                    onPageChange={setPage}
                 />
-            </Box>
-            <AlertDialog
-                isOpen={isOpenDelete}
-                leastDestructiveRef={cancelRef}
-                onClose={onCloseDelete}
-            >
-                <AlertDialogOverlay>
-                    <AlertDialogContent>
-                        <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-                            Reprovar
-                        </AlertDialogHeader>
+                
+                <AlertDialog
+                    isOpen={isOpenDelete}
+                    leastDestructiveRef={cancelRef}
+                    onClose={onCloseDelete}
+                >
+                    <AlertDialogOverlay>
+                        <AlertDialogContent>
+                            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+                                Reprovar
+                            </AlertDialogHeader>
 
-                        <AlertDialogBody>
-                            Tem certeza? Voce não poderá desfazer essa ação.
-                        </AlertDialogBody>
+                            <AlertDialogBody>
+                                Tem certeza? Voce não poderá desfazer essa ação.
+                            </AlertDialogBody>
 
-                        <AlertDialogFooter>
-                        <Button ref={cancelRef} onClick={onCloseDelete}>
-                            Cancelar
-                        </Button>
-                        <Button colorScheme='red' onClick={onDelete} ml={3}>
-                            Reprovar
-                        </Button>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialogOverlay>
-            </AlertDialog>
-            <Modal isOpen={isOpenObras} size="xl" onClose={onCloseObras}>
-                <ModalOverlay />
-                <ModalContent>
-                <ModalHeader>Obra</ModalHeader>
-                <ModalCloseButton />
-                <ModalBody>
-                    <InputText
-                        mb="10px"
-                        label='Pesquisar'
-                        onStopType={(newString) => {
-                            setString(newString)
-                        }}
-                    />
-                    {
-                        isLoadingObras && (
-                            <Flex width="100%" height={300} alignItems="center" justify="center">
-                                <Spinner/>
-                            </Flex>
-                            
-                        )
-                    }
-                    {
-                        !!string && !obras.length && !isLoadingObras && (
-                            <Flex width="100%" height={300} alignItems="center" justify="center">
-                                <Text color="#666" size="14px">
-                                    Obra não encontrada
-                                </Text>
-                            </Flex>
-                        )
-                    }
-                    <Flex flexDirection="column" gap="5px">
+                            <AlertDialogFooter>
+                            <Button ref={cancelRef} onClick={onCloseDelete}>
+                                Cancelar
+                            </Button>
+                            <Button colorScheme='red' onClick={onDelete} ml={3}>
+                                Reprovar
+                            </Button>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialogOverlay>
+                </AlertDialog>
+                <Modal isOpen={isOpenObras} size="xl" onClose={onCloseObras}>
+                    <ModalOverlay />
+                    <ModalContent>
+                    <ModalHeader>Obra</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        <InputText
+                            mb="10px"
+                            label='Pesquisar'
+                            onStopType={(newString) => {
+                                setString(newString)
+                            }}
+                        />
                         {
-                            !isLoadingObras && obras?.map((obra, index) => {
-                                return(
-                                    <Button
-                                        onClick={() => {
-                                            updatePedido(obra.id)
-                                            onCloseObras()
-                                        }}
-                                    >
-                                        {obra.nome.slice(0, 50)}
-                                    </Button>
-                                )
-                            })
+                            isLoadingObras && (
+                                <Flex width="100%" height={300} alignItems="center" justify="center">
+                                    <Spinner/>
+                                </Flex>
+                                
+                            )
                         }
-                    </Flex>
-                   
-                </ModalBody>
+                        {
+                            !!string && !obras.length && !isLoadingObras && (
+                                <Flex width="100%" height={300} alignItems="center" justify="center">
+                                    <Text color="#666" size="14px">
+                                        Obra não encontrada
+                                    </Text>
+                                </Flex>
+                            )
+                        }
+                        <Flex flexDirection="column" gap="5px">
+                            {
+                                !isLoadingObras && obras?.map((obra, index) => {
+                                    return(
+                                        <Button
+                                            onClick={() => {
+                                                updatePedido(obra.id)
+                                                onCloseObras()
+                                            }}
+                                        >
+                                            {obra.nome.slice(0, 50)}
+                                        </Button>
+                                    )
+                                })
+                            }
+                        </Flex>
+                       
+                    </ModalBody>
 
-                <ModalFooter>
-                </ModalFooter>
-                </ModalContent>
-            </Modal>
+                    <ModalFooter>
+                    </ModalFooter>
+                    </ModalContent>
+                </Modal>
+            </Box>
         </Flex>
     );
   }

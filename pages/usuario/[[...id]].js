@@ -122,7 +122,7 @@ export default function Usuario() {
         setLoading(true)
         try{
             const response = await api.get(`${key}/${id}`)
-            setFormulario(response.data)
+            setFormulario(response.data.resultados)
         }catch(error){
 
         } finally {

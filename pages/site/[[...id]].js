@@ -114,11 +114,11 @@ export default function Site() {
 
 
     useEffect(() => {
-       if(id) getTag(id)
+       if(id) getSite(id)
     },[id])
 
 
-    const getTag = async (id) => {
+    const getSite = async (id) => {
         setLoading(true)
         try{
             const response = await api.get(`${key}/${id}`)

@@ -33,6 +33,16 @@ import {
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
+    Table,
+    Thead,
+    Tbody,
+    Tr,
+    Th,
+    Td,
+    TableContainer,
+    InputGroup,
+    Input,
+    InputRightElement,
 } from '@chakra-ui/react';
 import { useGlobal } from '@/context/GlobalContext';
 import { ptBR } from '@/utils/datagrid_ptBr';
@@ -41,9 +51,10 @@ import api from '@/utils/api';
 import { IconEdit, IconListNumbers, IconPhoto, IconX , } from '@tabler/icons-react';
 import { imageUrl } from '@/utils';
 import { useRouter } from 'next/router';
+import Pagination from '@/components/Pagination';
+import { SearchIcon } from '@chakra-ui/icons';
 
-
-export default function Obras() {
+export default function ObrasImportando() {
     const { navigate , permissoes } = useGlobal()
     const [obras, setObras] = useState([])
     const [ isLoading, setLoading] = useState(true)
@@ -60,146 +71,52 @@ export default function Obras() {
         }
     },[])
 
-    const columnsAll = [
-        {
-            field: 'imagem',
-            headerName: 'Imagem',
-            width: 100,
-            editable: false,
-            renderCell: (params) => {
-                const id = params.row.id
-                return (
-                    <Box height="80px" p="0px">
-                        {
-                            params.row?.imagem ?
-                            <Image
-                                src={`${imageUrl}obras/${id}/${params.row?.imagem}`}
-                                w="100%"
-                                h="100%"
-                                objectFit="contain"
-                            />
-                            :
-                            <Flex
-                                flexDirection="column" 
-                                gap={3} 
-                                w={'100%'}
-                                h={'100%'}
-                                justify="center"
-                                alignItems={'center'}
-                                borderColor={'#fff'}
-                                // bgColor="#f4f4f4"
-                                borderRadius="5px"
-                            >
-                                <IconPhoto color="#666"/>
-                            </Flex>
-                        }
-                    </Box>
-                   
-                )
-            }
-        },
-        {
-            field: 'nome',
-            headerName: 'Nome ',
-            editable: false,
-            // flex: 1,
-            width: useBreakpointValue({
-                base: 200,
-                lg: 400
-            }),
-        },
-        {
-            field: 'formato',
-            headerName: 'Formato',
-            width: 160,
-            editable: false,
-            valueGetter: (formato) => formato.nome
-            
-        },
-        {
-            field: 'atualizacoes',
-            headerName: 'Atualização',
-            width: 160,
-            editable: false,
-            valueGetter: (atualizacoes) => ({
-                semanal : "Semanal",
-                mensal: "Mensal",
-                bisemanal: "Bi semanal"
-            }[atualizacoes.frequencia])
-        },
-        {
-            field: 'total_capitulos',
-            headerName: 'Cap.',
-            width: 80,
-            editable: false
-        },
-        {
-            field: 'capitulos_importados',
-            headerName: 'Imp.',
-            width: 80,
-            editable: false
-        },
-        {
-            field: 'capitulos_nao_importados',
-            headerName: 'Erro',
-            width: 80,
-            editable: false
-        },
-        {
-            field: 'actions',
-            type: 'actions',
-            headerName: 'Ações',
-            width: 80,
-            cellClassName: 'actions',
-            getActions: ({ id }) => {   
-              return [
-                <IconButton
-                    icon={<IconX size={16}/>}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        setIdAction(id)
-                        cancelarImportacao(id);
-                    }}
-                    colorScheme="red"
-                    size="sm"
-                    height="40px"
-                />,
-              ];
-            },
-        },
-    ];
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [limit, setLimit] = useState(20);
+    const [searchTerm, setSearchTerm] = useState('');
 
-    const columns  = useBreakpointValue({
-        base: [
-            columnsAll[0],
-            columnsAll[1]
-        ],
-        lg: columnsAll
-    }) 
+    useEffect(() => {
+        const { pagina, limite, busca } = router.query;
+        if (pagina) setPage(Number(pagina));
+        if (limite) setLimit(Number(limite));
+        if (busca) setSearchTerm(busca);
+    }, [router.query]);
 
     useEffect(() => {
         getObras()
-        setInterval(() => {
-            getObras()
-        }, 5000);
-    },[])
+    }, [page, limit, searchTerm])
 
     const getObras = async () => {
-        try{
+        try {
+            setLoading(true)
             const response = await api.get('obras', {
                 params: {
-                    limite: 500,
-                    importando : true
+                    pagina: page,
+                    limite: limit,
+                    string: searchTerm,
+                    importando: true
                 }
             })
-            setLoading(true)
-            setObras(response.data)
-        }catch(error){
-          console.log(error)
+            setObras(response.data.resultados)
+            setTotalPages(Math.ceil(response.data.total / limit))
+            
+            router.push({
+                pathname: router.pathname,
+                query: { ...router.query, pagina: page, limite: limit, busca: searchTerm },
+            }, undefined, { shallow: true });
+        } catch(error) {
+            console.log(error)
         } finally {
-          setLoading(false)
+            setLoading(false)
         }
     }
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        setPage(1);
+        getObras();
+    };
 
     const cancelarImportacao = async (id) => {
         try{
@@ -223,6 +140,7 @@ export default function Obras() {
         <Flex justify="center" >
             <Box 
                 maxWidth="1500px"
+                minWidth="1000px"
                 sx={{
                     '.even' : {
                         bgColor: '#f6f6f6'
@@ -234,34 +152,110 @@ export default function Obras() {
                         <BreadcrumbLink href='#'>Obras importando</BreadcrumbLink>
                     </BreadcrumbItem>
                 </Breadcrumb>
-              
+                <Flex mb="10px" alignItems="center">
+                    <form onSubmit={handleSearch} style={{ flex: 1 }}>
+                        <InputGroup>
+                            <Input
+                                placeholder="Buscar obras..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onKeyPress={(e) => {
+                                    if (e.key === 'Enter') {
+                                        handleSearch(e);
+                                    }
+                                }}
+                            />
+                            <InputRightElement>
+                                <IconButton
+                                    aria-label="Buscar obras"
+                                    icon={<SearchIcon />}
+                                    onClick={handleSearch}
+                                />
+                            </InputRightElement>
+                        </InputGroup>
+                    </form>
+                </Flex>
                 <Divider my="30px"/>
-                <DataGrid
-                    rows={obras}
-                    columns={columns}
-                    initialState={{
-                    pagination: {
-                        paginationModel: {
-                        pageSize: 100,
-                        },
-                    },
-                    }}
-                    rowHeight={80}
-                    pageSizeOptions={[15]}
-                    // checkboxSelection
-                    disableRowSelectionOnClick
-                    sx={{
-                        // minHeight: "calc(100vh - 120px)",
-                        backgroundColor: '#fff',
-                    }}
-                    localeText={ptBR}
-                    autoHeight
-                    getRowClassName={(params) =>
-                        params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
-                    }
+                <TableContainer>
+                    <Table variant="striped" size="sm" colorScheme="gray">
+                        <Thead>
+                            <Tr>
+                                <Th>ID</Th>
+                                <Th>Imagem</Th>
+                                <Th>Nome</Th>
+                                <Th>Formato</Th>
+                                <Th>Atualização</Th>
+                                <Th>Cap.</Th>
+                                <Th>Imp.</Th>
+                                <Th>Erro</Th>
+                                <Th>Ações</Th>
+                            </Tr>
+                        </Thead>
+                        <Tbody>
+                            {obras.map((obra) => (
+                                <Tr key={obra.id}>
+                                    <Td>{obra.id}</Td>
+                                    <Td>
+                                        <Box height="80px" p="0px">
+                                            {obra.imagem ? (
+                                                <Image
+                                                    src={`${imageUrl}obras/${obra.id}/${obra.imagem}`}
+                                                    w="100%"
+                                                    h="100%"
+                                                    objectFit="contain"
+                                                />
+                                            ) : (
+                                                <Flex
+                                                    flexDirection="column"
+                                                    gap={3}
+                                                    w={'100%'}
+                                                    h={'100%'}
+                                                    justify="center"
+                                                    alignItems={'center'}
+                                                    borderColor={'#fff'}
+                                                    borderRadius="5px"
+                                                >
+                                                    <IconPhoto color="#666" />
+                                                </Flex>
+                                            )}
+                                        </Box>
+                                    </Td>
+                                    <Td>{obra.nome}</Td>
+                                    <Td>{obra.formato.nome}</Td>
+                                    <Td>
+                                        {
+                                            {
+                                                semanal: "Semanal",
+                                                mensal: "Mensal",
+                                                bisemanal: "Bi semanal"
+                                            }[obra.atualizacoes.frequencia]
+                                        }
+                                    </Td>
+                                    <Td>{obra.total_capitulos}</Td>
+                                    <Td>{obra.capitulos_importados}</Td>
+                                    <Td>{obra.capitulos_nao_importados}</Td>
+                                    <Td>
+                                        <IconButton
+                                            icon={<IconX size={16}/>}
+                                            onClick={() => cancelarImportacao(obra.id)}
+                                            colorScheme="red"
+                                            size="sm"
+                                        />
+                                    </Td>
+                                </Tr>
+                            ))}
+                        </Tbody>
+                    </Table>
+                </TableContainer>
+                
+                <Pagination
+                    currentPage={page}
+                    totalPages={totalPages}
+                    totalItems={totalPages * limit}
+                    itemsPerPage={limit}
+                    onPageChange={setPage}
                 />
             </Box>
         </Flex>
     );
-  }
-  
+}

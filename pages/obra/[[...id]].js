@@ -168,7 +168,7 @@ export default function Obra() {
         setLoading(true)
         try{
             const response = await api.get(`tags`)
-            setTags(response.data)
+            setTags(response.data.resultados)
         }catch(error){
 
         } finally {
@@ -181,7 +181,7 @@ export default function Obra() {
         setLoading(true)
         try{
             const response = await api.get(`formato`)
-            setFormatos(response.data)
+            setFormatos(response.data.resultados)
         }catch(error){
 
         } finally {
@@ -194,7 +194,7 @@ export default function Obra() {
     const getStatusList = async () => {
         try{
             const response = await api.get(`obra-status`)
-            setStatusList(response.data)
+            setStatusList(response.data.resultados)
         }catch(error){
 
         } finally {
@@ -210,7 +210,7 @@ export default function Obra() {
       setLoading(true)
       try{
           const response = await api.get(`site`)
-          setSites(response.data)
+          setSites(response.data.resultados)
       }catch(error){
 
       } finally {
@@ -238,7 +238,7 @@ export default function Obra() {
     const getAgentes = async () => {
         try{
             const response = await api.get(`agentes`)
-            setAgentes(response.data)
+            setAgentes(response.data.resultados)
         }catch(error){
 
         } finally {

@@ -41,9 +41,10 @@ import api from '@/utils/api';
 import { IconEdit, IconListNumbers, IconPhoto , } from '@tabler/icons-react';
 import { imageUrl } from '@/utils';
 import { useRouter } from 'next/router';
+import { SearchIcon } from '@chakra-ui/icons';
+import Pagination from '@/components/Pagination';
 
-
-export default function Obras() {
+export default function ObrasDesatualizadas() {
     const { navigate , permissoes } = useGlobal()
     const [obras, setObras] = useState([])
     const [ isLoading, setLoading] = useState(true)
@@ -52,6 +53,10 @@ export default function Obras() {
     const cancelRef = useRef()
     const toast = useToast()
     const router = useRouter()
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [limit, setLimit] = useState(20);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         if(!permissoes?.permObras) {
@@ -59,185 +64,40 @@ export default function Obras() {
         }
     },[])
 
-    const columnsAll = [
-        {
-            field: 'imagem',
-            headerName: 'Imagem',
-            width: 100,
-            editable: false,
-            renderCell: (params) => {
-                const id = params.row.id
-                return (
-                    <Box height="80px" p="0px">
-                        {
-                            params.row?.imagem ?
-                            <Image
-                                src={`${imageUrl}obras/${id}/${params.row?.imagem}`}
-                                w="100%"
-                                h="100%"
-                                objectFit="contain"
-                            />
-                            :
-                            <Flex
-                                flexDirection="column" 
-                                gap={3} 
-                                w={'100%'}
-                                h={'100%'}
-                                justify="center"
-                                alignItems={'center'}
-                                borderColor={'#fff'}
-                                // bgColor="#f4f4f4"
-                                borderRadius="5px"
-                            >
-                                <IconPhoto color="#666"/>
-                            </Flex>
-                        }
-                    </Box>
-                   
-                )
-            }
-        },
-        {
-            field: 'nome',
-            headerName: 'Nome ',
-            editable: false,
-            // flex: 1,
-            width: useBreakpointValue({
-                base: 200,
-                lg: 400
-            }),
-        },
-        {
-            field: 'formato',
-            headerName: 'Formato',
-            width: 160,
-            editable: false,
-            valueGetter: (formato) => formato.nome
-            
-        },
-        {
-            field: 'total_capitulos',
-            headerName: 'Cap.',
-            width: 80,
-            editable: false
-        },
-        {
-            field: 'agente',
-            headerName: 'Reponsável',
-            width: 200,
-            editable: false,
-            valueGetter: (agente) => agente?.nome
-        },
-        {
-            field: 'atualizacoes',
-            headerName: 'Dia da semana',
-            width: 160,
-            editable: false,
-            valueGetter: (atualizacoes) => ({
-                segunda : "Segunda",
-                terca: "Terça",
-                quarta: "Quarta",
-                quinta: "Quinta",
-                sexta: "Sexta",
-                sabado: "Sabado",
-                domingo: "Domingo",
-            }[atualizacoes.dia_semana])
-        },
-        {
-            field: 'atualizacoes2',
-            headerName: 'Status',
-            width: 110,
-            editable: false,
-            renderCell: (params) => {
-                return (
-                    <Flex
-                        height="100%"
-                        align="center"
-                        justify="center"
-                        gap="5px"
-                    >
-                        <Tag 
-                            h="fit-content" 
-                            px="15px"
-                            colorScheme={"yellow"}
-                            borderRadius="full"
-                            size="sm"
-                            w="100px"
-                            justifyContent="center"
-                        >
-                            Desatualizada
-                        </Tag>
-                    </Flex>
-                )
-            }
-        },
-        {
-            field: 'actions',
-            type: 'actions',
-            headerName: 'Ações',
-            width: 80,
-            cellClassName: 'actions',
-            getActions: ({ id }) => {   
-              return [
-                <Menu>
-                    <MenuButton size="md" as={IconButton} icon={<HamburgerIcon />}/>
-                    <MenuList>
-                        <MenuItem
-                            icon={<IconEdit stroke={1.25}size={16}/>}
-                            onClick={(e) => {
-                                e.stopPropagation(); 
-                                onEdit(id)
-                            }}
-                            size="sm"
-                            height="40px"
-                        >
-                            Editar
-                        </MenuItem>
-                        <MenuItem
-                            icon={<IconListNumbers stroke={1.25} size={16} />}
-                            onClick={(e) => {
-                                e.stopPropagation(); 
-                                onCapitulos(id)
-                            }}
-                            size="sm"
-                            height="40px"
-                        >
-                            Capitulos
-                        </MenuItem>
-                    </MenuList>
-                </Menu>,
-              ];
-            },
-        },
-    ];
+    useEffect(() => {
+        const { pagina, limite, busca } = router.query;
+        if (pagina) setPage(Number(pagina));
+        if (limite) setLimit(Number(limite));
+        if (busca) setSearchTerm(busca);
+    }, [router.query]);
 
-    const columns  = useBreakpointValue({
-        base: [
-            columnsAll[0],
-            columnsAll[1],
-            columnsAll[6]
-        ],
-        lg: columnsAll
-    }) 
 
     useEffect(() => {
         getObras()
-    },[])
+    }, [page, limit, searchTerm])
 
     const getObras = async () => {
-        try{
+        try {
+            setLoading(true)
             const response = await api.get('obras', {
                 params: {
-                    limite: 500,
-                    statusatualizacao : 'desatualizado'
+                    pagina: page,
+                    limite: limit,
+                    string: searchTerm,
+                    statusatualizacao: 'desatualizado'
                 }
             })
-            setLoading(true)
-            setObras(response.data)
-        }catch(error){
-          console.log(error)
+            setObras(response.data.resultados)
+            setTotalPages(Math.ceil(response.data.total / limit))
+            
+            router.push({
+                pathname: router.pathname,
+                query: { ...router.query, pagina: page, limite: limit, busca: searchTerm },
+            }, undefined, { shallow: true });
+        } catch(error) {
+            console.log(error)
         } finally {
-          setLoading(false)
+            setLoading(false)
         }
     }
 
@@ -270,23 +130,46 @@ export default function Obras() {
         navigate(`/capitulos/${id}`)
     }
 
+    const handleSearch = (e) => {
+        e.preventDefault();
+        setPage(1);
+        getObras();
+    };
+
     return (
         <Flex justify="center" >
             <Box 
                 maxWidth="1500px"
+                minWidth="1000px"
                 sx={{
                     '.even' : {
                         bgColor: '#f6f6f6'
                     }
                 }}    
             >
-                <Breadcrumb>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href='#'>Obras desatualizadas</BreadcrumbLink>
-                    </BreadcrumbItem>
-                </Breadcrumb>
-                <Flex mb="10px">
-                    <Spacer/>
+                <Flex mb="10px" alignItems="center">
+                    <form onSubmit={handleSearch} style={{ flex: 1 }}>
+                        <InputGroup>
+                            <Input
+                                placeholder="Buscar obras desatualizadas..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onKeyPress={(e) => {
+                                    if (e.key === 'Enter') {
+                                        handleSearch(e);
+                                    }
+                                }}
+                            />
+                            <InputRightElement>
+                                <IconButton
+                                    aria-label="Buscar obras"
+                                    icon={<SearchIcon />}
+                                    onClick={handleSearch}
+                                />
+                            </InputRightElement>
+                        </InputGroup>
+                    </form>
+                    <Spacer />
                     <Button 
                         size="sm" 
                         rightIcon={<AddIcon/>}
@@ -295,63 +178,148 @@ export default function Obras() {
                         }}
                         variant="outline"
                         colorScheme="blue"
+                        ml={4}
                     >
                         Adicionar
                     </Button>
                 </Flex>
                 <Divider my="30px"/>
-                <DataGrid
-                    rows={obras}
-                    columns={columns}
-                    initialState={{
-                    pagination: {
-                        paginationModel: {
-                        pageSize: 100,
-                        },
-                    },
-                    }}
-                    rowHeight={80}
-                    pageSizeOptions={[15]}
-                    // checkboxSelection
-                    disableRowSelectionOnClick
-                    sx={{
-                        // minHeight: "calc(100vh - 120px)",
-                        backgroundColor: '#fff',
-                    }}
-                    localeText={ptBR}
-                    autoHeight
-                    getRowClassName={(params) =>
-                        params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
-                    }
+                <TableContainer>
+                    <Table variant="striped" size="sm" colorScheme="gray">
+                        <Thead>
+                            <Tr>
+                                <Th>Imagem</Th>
+                                <Th>Nome</Th>
+                                <Th>Formato</Th>
+                                <Th>Cap.</Th>
+                                <Th>Responsável</Th>
+                                <Th>Dia da semana</Th>
+                                <Th>Status</Th>
+                                <Th>Ações</Th>
+                            </Tr>
+                        </Thead>
+                        <Tbody>
+                            {obras.map((obra) => (
+                                <Tr key={obra.id}>
+                                    <Td>
+                                        <Box height="80px" p="0px">
+                                            {obra.imagem ? (
+                                                <Image
+                                                    src={`${imageUrl}obras/${obra.id}/${obra.imagem}`}
+                                                    w="100%"
+                                                    h="100%"
+                                                    objectFit="contain"
+                                                />
+                                            ) : (
+                                                <Flex
+                                                    flexDirection="column"
+                                                    gap={3}
+                                                    w={'100%'}
+                                                    h={'100%'}
+                                                    justify="center"
+                                                    alignItems={'center'}
+                                                    borderColor={'#fff'}
+                                                    borderRadius="5px"
+                                                >
+                                                    <IconPhoto color="#666" />
+                                                </Flex>
+                                            )}
+                                        </Box>
+                                    </Td>
+                                    <Td>{obra.nome}</Td>
+                                    <Td>{obra.formato.nome}</Td>
+                                    <Td>{obra.total_capitulos}</Td>
+                                    <Td>{obra.agente?.nome}</Td>
+                                    <Td>
+                                        {
+                                            {
+                                                segunda: "Segunda",
+                                                terca: "Terça",
+                                                quarta: "Quarta",
+                                                quinta: "Quinta",
+                                                sexta: "Sexta",
+                                                sabado: "Sábado",
+                                                domingo: "Domingo",
+                                            }[obra.atualizacoes.dia_semana]
+                                        }
+                                    </Td>
+                                    <Td>
+                                        <Tag 
+                                            colorScheme="yellow"
+                                            borderRadius="full"
+                                            size="sm"
+                                            w="100px"
+                                            justifyContent="center"
+                                        >
+                                            Desatualizada
+                                        </Tag>
+                                    </Td>
+                                    <Td>
+                                        <Menu>
+                                            <MenuButton size="md" as={IconButton} icon={<HamburgerIcon />} />
+                                            <MenuList>
+                                                <MenuItem
+                                                    icon={<IconEdit stroke={1.25}size={16}/>}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); 
+                                                        onEdit(obra.id)
+                                                    }}
+                                                >
+                                                    Editar
+                                                </MenuItem>
+                                                <MenuItem
+                                                    icon={<IconListNumbers stroke={1.25} size={16} />}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); 
+                                                        onCapitulos(obra.id)
+                                                    }}
+                                                >
+                                                    Capítulos
+                                                </MenuItem>
+                                            </MenuList>
+                                        </Menu>
+                                    </Td>
+                                </Tr>
+                            ))}
+                        </Tbody>
+                    </Table>
+                </TableContainer>
+                
+                <Pagination
+                    currentPage={page}
+                    totalPages={totalPages}
+                    totalItems={totalPages * limit}
+                    itemsPerPage={limit}
+                    onPageChange={setPage}
                 />
+                
+                <AlertDialog
+                    isOpen={isOpenDelete}
+                    leastDestructiveRef={cancelRef}
+                    onClose={onCloseDelete}
+                >
+                    <AlertDialogOverlay>
+                        <AlertDialogContent>
+                            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+                                Excluir
+                            </AlertDialogHeader>
+
+                            <AlertDialogBody>
+                                Tem certeza? Voce não poderá desfazer essa ação.
+                            </AlertDialogBody>
+
+                            <AlertDialogFooter>
+                            <Button ref={cancelRef} onClick={onCloseDelete}>
+                                Cancelar
+                            </Button>
+                            <Button colorScheme='red' onClick={onDelete} ml={3}>
+                                Excluir
+                            </Button>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialogOverlay>
+                </AlertDialog>
             </Box>
-            <AlertDialog
-                isOpen={isOpenDelete}
-                leastDestructiveRef={cancelRef}
-                onClose={onCloseDelete}
-            >
-                <AlertDialogOverlay>
-                    <AlertDialogContent>
-                        <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-                            Excluir
-                        </AlertDialogHeader>
-
-                        <AlertDialogBody>
-                            Tem certeza? Voce não poderá desfazer essa ação.
-                        </AlertDialogBody>
-
-                        <AlertDialogFooter>
-                        <Button ref={cancelRef} onClick={onCloseDelete}>
-                            Cancelar
-                        </Button>
-                        <Button colorScheme='red' onClick={onDelete} ml={3}>
-                            Excluir
-                        </Button>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialogOverlay>
-            </AlertDialog>
         </Flex>
     );
-  }
-  
+}
