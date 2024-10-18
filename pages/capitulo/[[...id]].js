@@ -27,6 +27,9 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
   AlertDialogCloseButton,
+  Icon,
+  IconPhotoOff,
+  SimpleGrid,
 } from '@chakra-ui/react';
 
 import { useRouter } from 'next/router';
@@ -37,6 +40,27 @@ import FotoPicker from '@/components/FotoPicker';
 import { imageUrl } from '@/utils';
 import InputSelect from '@/components/inputs/InputSelect';
 import { IconTrash } from '@tabler/icons-react';
+
+// Importe os componentes necessários do dnd-kit
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  useDebouncedDragEnd
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
+import { SortableItem } from '@/components/SortableItem';
+import { useDropzone } from 'react-dropzone';
+import { resizeImage } from '@/utils';
+import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 
 export default function Capitulo() {
     const keyName = "Capitulo"
@@ -50,16 +74,21 @@ export default function Capitulo() {
     const { id , obra } = router.query;
     const toast = useToast()
 
+    const { isOpen, onOpen, onClose } = useDisclosure()
+    const { 
+      isOpen: isImageModalOpen, 
+      onOpen: onImageModalOpen, 
+      onClose: onImageModalClose 
+    } = useDisclosure() // Movido para cá
+
+    const cancelRef = useRef()
+
     useEffect(() => {
       if(!permissoes?.permObras) {
           router.back()
       }
     },[])
 
-
-    const { isOpen, onOpen, onClose } = useDisclosure()
-    const cancelRef = useRef()
-  
 
     const handleFormChange = (dado) => {
       setErrors({})
@@ -98,8 +127,8 @@ export default function Capitulo() {
       setLoading(true)
       try{
         //INSERINDO
-        if(id)  await api.patch(`${key}/${id}`, { ...formulario })
-        else  await api.post(`${key}`, { ...formulario, obra, notification })
+        if(id)  await api.patch(`${key}/${id}`, { ...formulario, paginas: JSON.stringify(paginas) })
+        else  await api.post(`${key}`, { ...formulario, obra, notification, paginas: JSON.stringify(paginas) })
         
         router.back()
         setFormulario({})
@@ -127,11 +156,11 @@ export default function Capitulo() {
 
 
     useEffect(() => {
-       if(id) getTag(id)
+       if(id) getForm(id)
     },[id])
 
 
-    const getTag = async (id) => {
+    const getForm = async (id) => {
         setLoading(true)
         try{
             const response = await api.get(`${key}/${id}`)
@@ -175,6 +204,123 @@ export default function Capitulo() {
       handleFormChange({ links })
     }
     
+    const [paginas, setPaginas] = useState([]);
+
+    const sensors = useSensors(
+      useSensor(PointerSensor, {
+        activationConstraint: {
+          delay: 250,
+          tolerance: 5,
+        },
+      }),
+      useSensor(KeyboardSensor, {
+        coordinateGetter: sortableKeyboardCoordinates,
+      })
+    );
+
+    useEffect(() => {
+      if (formulario.paginas) {
+        setPaginas(formulario.paginas);
+      }
+    }, [formulario.paginas]);
+
+    const handleDragEnd = (event) => {
+      const { active, over } = event;
+
+      if (active.id !== over?.id) {
+        setPaginas((items) => {
+          const oldIndex = items.findIndex((item) => item.src === active.id);
+          const newIndex = items.findIndex((item) => item.src === over?.id);
+
+          return arrayMove(items, oldIndex, newIndex);
+        });
+      }
+    };
+
+    const [imageLoadErrors, setImageLoadErrors] = useState({});
+
+    const handleImageError = (src) => {
+      setImageLoadErrors(prev => ({ ...prev, [src]: true }));
+    };
+
+    const onDrop = async (acceptedFiles) => {
+      const newPaginas = await Promise.all(
+        acceptedFiles.map(async (file) => {
+          if (file.size > 10 * 1024 * 1024) {
+            toast({
+              description: 'A imagem não deve exceder 10 MB',
+              status: 'error',
+              duration: 3000,
+              isClosable: true,
+              position: 'bottom-right',
+            });
+            return null;
+          }
+
+          const base64String = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(file);
+          });
+
+          const resizedImage = await resizeImage(base64String);
+          return { src: resizedImage };
+        })
+      );
+
+      const validPaginas = newPaginas.filter(pagina => pagina !== null);
+      setPaginas([...paginas, ...validPaginas]);
+    };
+
+    const { getRootProps, getInputProps, open } = useDropzone({
+      onDrop,
+      noClick: true,
+      noKeyboard: true,
+    });
+
+    const handleRemovePagina = (index, event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      setPaginas(paginas.filter((_, i) => i !== index));
+    };
+
+    const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+
+    const handleImageClick = (index) => {
+      setSelectedImageIndex(index);
+      onImageModalOpen();
+    };
+
+    const handlePrevImage = () => {
+      setSelectedImageIndex((prevIndex) => 
+        prevIndex > 0 ? prevIndex - 1 : paginas.length - 1
+      );
+    };
+
+    const handleNextImage = () => {
+      setSelectedImageIndex((prevIndex) => 
+        prevIndex < paginas.length - 1 ? prevIndex + 1 : 0
+      );
+    };
+
+    useEffect(() => {
+      const handleKeyDown = (event) => {
+        if (isImageModalOpen) {
+          if (event.key === 'ArrowLeft') {
+            handlePrevImage();
+          } else if (event.key === 'ArrowRight') {
+            handleNextImage();
+          }
+        }
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }, [isImageModalOpen, handlePrevImage, handleNextImage]);
+
     return (
       <>
         <CustomHead
@@ -199,27 +345,12 @@ export default function Capitulo() {
           >
             <Flex justify="space-between">
               <Text fontWeight="600" fontSize={20}>{keyName}</Text>
-              {
-                !!formulario?.prox_cap &&
-                <Button
-                  w="150px"
-                  type='submit'
-                  isLoading={loading}
-                  disabled={loading}
-                  colorScheme="blue"
-                  size="sm"
-                  onClick={() => {
-                    navigate(`/capitulo/${formulario?.prox_cap}`)
-                  }}
-                >
-                  Próximo capitulo
-                </Button>
-              }
+              
              
             </Flex>
             
             <Divider my="30px"/>
-            <Flex justify="space-between" minWidth={{ base: '200px', lg: "900px"}} maxWidth="1000px" width="100%" display={"flex"}  mb="25px">
+            <Flex justify="space-between" gap="10px" minWidth={{ base: '200px', lg: "900px"}} maxWidth="1000px" width="100%" display={"flex"}  mb="25px">
               <Button
                   w="150px"
                   onClick={() => {
@@ -230,6 +361,36 @@ export default function Capitulo() {
                   Voltar
                 </Button>
                 <Spacer/>
+                {
+                  !!formulario?.cap_anterior && formulario?.cap_anterior != formulario?.id &&
+                  <Button
+                    w="150px"
+                    isLoading={loading}
+                    disabled={loading}
+                    colorScheme="blue"
+                    size="sm"
+                    onClick={() => {
+                      getForm(formulario?.cap_anterior)
+                    }}
+                  >
+                    Capítulo anterior
+                  </Button>
+                }
+                {
+                  !!formulario?.prox_cap &&
+                  <Button
+                    w="150px"
+                    isLoading={loading}
+                    disabled={loading}
+                    colorScheme="blue"
+                    size="sm"
+                    onClick={() => {
+                      getForm(formulario?.prox_cap)
+                    }}
+                  >
+                    Próximo capitulo
+                  </Button>
+                }
                 <Button
                   w="150px"
                   type='submit'
@@ -267,7 +428,7 @@ export default function Capitulo() {
                       mb="15px"
                   />
                 </GridItem>
-                <GridItem w='100%' colSpan={{ base: 4, lg: 2}}>
+                {/* <GridItem w='100%' colSpan={{ base: 4, lg: 2}}>
                   <InputText
                     label="Lançado em"
                     widht="100%"
@@ -278,8 +439,8 @@ export default function Capitulo() {
                     inputRef={refs.lancado_em}
                       mb="15px"
                   />
-                </GridItem>
-                <GridItem w='100%' colSpan={{ base: 4, lg: 4}}>
+                </GridItem> */}
+                {/* <GridItem w='100%' colSpan={{ base: 4, lg: 4}}>
                   <InputText
                     label="Descrição*"
                     widht="100%"
@@ -393,6 +554,88 @@ export default function Capitulo() {
                   <Button size="sm" colorScheme="blue" variant="outline" onClick={handleAddLink}>
                     Adicionar link
                   </Button>
+                </GridItem> */}
+                <GridItem mt="20px" w='100%' colSpan={{ base: 4, lg: 4}} mb="15px">
+                  <Text as="b" mb={4} display="block">Páginas:</Text>
+                  <Box {...getRootProps()}>
+                    <input {...getInputProps()} />
+                    <Button onClick={open} colorScheme="blue" mb={4}>
+                      Adicionar imagens
+                    </Button>
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={handleDragEnd}
+                    >
+                      <SortableContext
+                        items={paginas.map(p => p.src)}
+                        strategy={rectSortingStrategy}
+                      >
+                        <SimpleGrid columns={{ base: 2, sm: 3, md: 4, lg: 5 }} spacing={4}>
+                          {paginas.map((pagina, index) => (
+                            <SortableItem key={pagina.src} id={pagina.src}>
+                              {(provided) => (
+                                <Flex 
+                                  alignItems="center" 
+                                  justifyContent="center"
+                                  flexDirection="column"
+                                  borderRadius={3}
+                                  overflow="hidden"
+                                  boxShadow="md"
+                                  bg="white"
+                                  p={2}
+                                  height="200px"
+                                  _hover={{ boxShadow: "lg" }}
+                                  position="relative"
+                                  {...provided.attributes}
+                                  {...provided.listeners}
+                                >
+                                  {imageLoadErrors[pagina.src] ? (
+                                    <Flex
+                                      flex={1}
+                                      bg="gray.100"
+                                      alignItems="center"
+                                      justifyContent="center"
+                                      flexDirection="column"
+                                      width="100%"
+                                    >
+                                      <Icon as={IconPhotoOff} boxSize={8} color="gray.500" />
+                                      <Text fontSize="xs" color="gray.500" mt={1} textAlign="center">
+                                        Imagem não carregada
+                                      </Text>
+                                    </Flex>
+                                  ) : (
+                                    <Image
+                                      src={pagina.src.startsWith('data:') ? pagina.src : `${imageUrl}obras/${formulario.obra?.id}/capitulos/${formulario.numero}/${pagina.src}`}
+                                      alt={`Página ${index + 1}`}
+                                      objectFit="cover"
+                                      width="100%"
+                                      height="150px"
+                                      onError={() => handleImageError(pagina.src)}
+                                      onClick={() => handleImageClick(index)}
+                                      cursor="pointer"
+                                    />
+                                  )}
+                                  <Text color="gray.600" fontSize="13px" mt={2}>Página {index + 1}</Text>
+                                  <IconButton
+                                    icon={<IconTrash size={16} />}
+                                    size="sm"
+                                    colorScheme="red"
+                                    position="absolute"
+                                    top={1}
+                                    right={1}
+                                    onClick={(e) => handleRemovePagina(index, e)}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    onTouchStart={(e) => e.stopPropagation()}
+                                  />
+                                </Flex>
+                              )}
+                            </SortableItem>
+                          ))}
+                        </SimpleGrid>
+                      </SortableContext>
+                    </DndContext>
+                  </Box>
                 </GridItem>
               </Grid>
             </Box>
@@ -446,8 +689,63 @@ export default function Capitulo() {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
+
+      {/* Modal para visualização da imagem */}
+      <Modal isOpen={isImageModalOpen} onClose={onImageModalClose} size="full">
+        <ModalOverlay />
+        <ModalContent bg="rgba(0,0,0,0.8)">
+          <ModalHeader color="white">Página {selectedImageIndex !== null ? selectedImageIndex + 1 : ''}</ModalHeader>
+          <ModalCloseButton color="white" />
+          <ModalBody>
+            <Flex alignItems="center" justifyContent="space-between" height="calc(100vh - 100px)">
+              <IconButton
+                icon={<ChevronLeftIcon />}
+                onClick={handlePrevImage}
+                aria-label="Página anterior"
+                variant="ghost"
+                color="white"
+                size="lg"
+              />
+              <Box maxHeight="100%" maxWidth="calc(100% - 100px)" overflow="auto" textAlign="center">
+                {selectedImageIndex !== null && paginas[selectedImageIndex] && (
+                  <Image
+                    src={paginas[selectedImageIndex].src.startsWith('data:') 
+                      ? paginas[selectedImageIndex].src 
+                      : `${imageUrl}obras/${formulario.obra?.id}/capitulos/${formulario.numero}/${paginas[selectedImageIndex].src}`
+                    }
+                    alt={`Página ${selectedImageIndex + 1}`}
+                    maxHeight="100%"
+                    maxWidth="100%"
+                    objectFit="contain"
+                  />
+                )}
+              </Box>
+              <IconButton
+                icon={<ChevronRightIcon />}
+                onClick={handleNextImage}
+                aria-label="Próxima página"
+                variant="ghost"
+                color="white"
+                size="lg"
+              />
+            </Flex>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
       </>
       
     );
   }
   
+
+
+
+
+
+
+
+
+
+
+
+

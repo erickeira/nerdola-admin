@@ -371,7 +371,7 @@ export default function Obra() {
                 <GridItem w='100%' colSpan={{ base: 4, lg: 4}} my="40px">
                   <Divider/>
                 </GridItem>
-                <GridItem mt="20px" w='100%' colSpan={{ base: 4, lg: 4}} mb="15px">
+                {/* <GridItem mt="20px" w='100%' colSpan={{ base: 4, lg: 4}} mb="15px">
                   <Text as="b">Atualização:</Text>
                 </GridItem>
                 <GridItem w='100%' colSpan={{ base: 4, lg: 2}}>
@@ -472,7 +472,7 @@ export default function Obra() {
                 </GridItem>
                 <GridItem w='100%' colSpan={{ base: 4, lg: 4}} my="40px">
                   <Divider/>
-                </GridItem>
+                </GridItem> */}
                 <GridItem mt="20px" w='100%' colSpan={{ base: 4, lg: 4}} mb="15px">
                   <Text as="b">Imagem:</Text>
                 </GridItem>

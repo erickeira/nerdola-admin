@@ -66,42 +66,42 @@ export default function Capitulos() {
     },[])
 
     const columnsAll = [
-        {
-            field: 'imagem',
-            headerName: 'Imagem',
-            width: 100,
-            editable: false,
-            renderCell: (params) => {
-                return (
-                    <Box height="80px" p="0px">
-                        {
-                            params.row?.imagem ?
-                            <Image
-                                src={`${imageUrl}obras/${id}/${params.row?.imagem}`}
-                                w="100%"
-                                h="100%"
-                                objectFit="contain"
-                            />
-                            :
-                            <Flex
-                                flexDirection="column" 
-                                gap={3} 
-                                w={'100%'}
-                                h={'100%'}
-                                justify="center"
-                                alignItems={'center'}
-                                borderColor={'#fff'}
-                                // bgColor="#f4f4f4"
-                                borderRadius="5px"
-                            >
-                                <IconPhoto color="#666"/>
-                            </Flex>
-                        }
-                    </Box>
+        // {
+        //     field: 'imagem',
+        //     headerName: 'Imagem',
+        //     width: 100,
+        //     editable: false,
+        //     renderCell: (params) => {
+        //         return (
+        //             <Box height="80px" p="0px">
+        //                 {
+        //                     params.row?.imagem ?
+        //                     <Image
+        //                         src={`${imageUrl}obras/${id}/${params.row?.imagem}`}
+        //                         w="100%"
+        //                         h="100%"
+        //                         objectFit="contain"
+        //                     />
+        //                     :
+        //                     <Flex
+        //                         flexDirection="column" 
+        //                         gap={3} 
+        //                         w={'100%'}
+        //                         h={'100%'}
+        //                         justify="center"
+        //                         alignItems={'center'}
+        //                         borderColor={'#fff'}
+        //                         // bgColor="#f4f4f4"
+        //                         borderRadius="5px"
+        //                     >
+        //                         <IconPhoto color="#666"/>
+        //                     </Flex>
+        //                 }
+        //             </Box>
                    
-                )
-            }
-        },
+        //         )
+        //     }
+        // },
         {
             field: 'nome',
             headerName: 'Nome',
